@@ -172,30 +172,69 @@
 <p>This class performs no operations and generates a report
 as a side-effect. It is primarily used to generate registration
 reports on already registered data.</p>
+<dl class="py method">
+<dt id="niviz.interfaces.views.IRegRPT._post_run_hook">
+<code class="sig-name descname">_post_run_hook</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runtime</span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Side-effect function of IRegRPT.</p>
+<p>Generate transition report as a side-effect. No operations
+are performed on the data (identity)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object propogated through ReportCapable
+interfaces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="niviz.interfaces.views.IRegRPT._run_interface">
+<code class="sig-name descname">_run_interface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runtime</span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function of IRegRPT, does nothing.</p>
+<p>Implements identity operation. IRegRPT expects
+fully registered inputs, so no operations are performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object (unchanged)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt id="niviz.interfaces.views.IRegRPT.input_spec">
 <code class="sig-name descname">input_spec</code><a class="headerlink" href="#niviz.interfaces.views.IRegRPT.input_spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Input specification holding (bg_nii, fg_nii, contours)</p>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IRegInputSpecRPT" title="niviz.interfaces.views._IRegInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">_IRegInputSpecRPT</span></code></a></p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="niviz.interfaces.views.IRegRPT.output_spec">
 <code class="sig-name descname">output_spec</code><a class="headerlink" href="#niviz.interfaces.views.IRegRPT.output_spec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contains output_report path</p>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IRegOutputSpecRPT" title="niviz.interfaces.views._IRegOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">_IRegOutputSpecRPT</span></code></a></p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="id0">
-<code class="sig-name descname">input_spec</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_IRegInputSpecRPT</span></code></p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt id="id1">
-<code class="sig-name descname">output_spec</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_IRegOutputSpecRPT</span></code></p>
+<dl class="py class">
+<dt id="niviz.interfaces.views._IRegInputSpecRPT">
+<em class="property">class </em><code class="sig-prename descclassname">niviz.interfaces.views.</code><code class="sig-name descname">_IRegInputSpecRPT</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IRegInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
 </dd></dl>
 
+<dl class="py class">
+<dt id="niviz.interfaces.views._IRegOutputSpecRPT">
+<em class="property">class </em><code class="sig-prename descclassname">niviz.interfaces.views.</code><code class="sig-name descname">_IRegOutputSpecRPT</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IRegOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
 </dd></dl>
 
 </div>

@@ -25,7 +25,6 @@ project = 'niviz'
 copyright = '2020, Jerry Jeyachandra, Ben Selby'
 author = 'Jerry Jeyachandra, Ben Selby'
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -34,12 +33,9 @@ author = 'Jerry Jeyachandra, Ben Selby'
 
 # TODO: Add intersphinx mappings to niworkflows/nipype
 extensions = [
-        'sphinx.ext.napoleon',
-        'sphinx.ext.autodoc',
-        'sphinx_autodoc_typehints',
-        'sphinx_rtd_theme'
+    'sphinx.ext.napoleon', 'sphinx.ext.autodoc', 'sphinx_autodoc_typehints',
+    'sphinx_rtd_theme'
 ]
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -49,6 +45,13 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# --- Autodoc Options -------------------------------------------------------
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "private-members": True
+}
 
 # -- Options for HTML output -------------------------------------------------
 

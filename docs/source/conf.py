@@ -31,10 +31,9 @@ author = 'Jerry Jeyachandra, Ben Selby'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-# TODO: Add intersphinx mappings to niworkflows/nipype
 extensions = [
     'sphinx.ext.napoleon', 'sphinx.ext.autodoc', 'sphinx_autodoc_typehints',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme', 'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -51,6 +50,19 @@ autodoc_default_options = {
     "members": True,
     "undoc-members": True,
     "private-members": True
+}
+
+# --- Autodoc Typehint Options --------
+
+# FAILS with an import error on 'F' in pandas._typing
+# set_type_checking_flag = True
+
+# --- Intersphinx Options ----------------------------------------------------
+
+intersphinx_mapping = {
+    'nipype':
+    ('https://nipype.readthedocs.io/en/latest/', None),
+    'niworkflows': ('https://www.nipreps.org/niworkflows/', None)
 }
 
 # -- Options for HTML output -------------------------------------------------

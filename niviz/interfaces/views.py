@@ -2,8 +2,7 @@
 # vi: set ft=python sts=4 ts=4 sw=4 et:
 
 import niworkflows.interfaces.report_base as nrc
-from nipype.interfaces.base import File
-from nipype.interfaces.base import InputMultiPath
+from nipype.interfaces.base import File, traits, InputMultiPath
 from nipype.interfaces.mixins import reporting
 
 """
@@ -52,8 +51,7 @@ class IRegRPT(nrc.RegistrationRC):
         return runtime
 
 
-class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec,
-                        BaseInterfaceInputSpec):
+class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec):
     '''
     Input specification for ISegRPT, implements:
 
@@ -81,10 +79,13 @@ class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec,
                     mandatory=True)
 
     mask_file = File(exists=True,
-                     udedefault=False,
                      resolve=True,
-                     desc='ROI Mask for mosaic',
-                     mandatory=True)
+                     desc='ROI Mask for mosaic')
+                     
+    masked = traits.Bool(False,
+                     usedefault=True,
+                     desc='Flag to indicate whether'
+                     ' image is already masked')
 
 
 class _ISegOutputSpecRPT(reporting.ReportCapableOutputSpec):
@@ -114,8 +115,8 @@ class ISegRPT(nrc.SegmentationRC):
         # Set variables for `nrc.SegmentationRC`
         self._anat_file = self.inputs.anat_file
         self._seg_files = self.inputs.seg_files
-        self._mask_file = self.inputs.mask_file
-        self._masked = True
+        self._mask_file = self.inputs.mask_file or None
+        self._masked = self.inputs.masked
 
         # Propogate to superclass
         return super(ISegRPT, self)._post_run_hook(runtime)

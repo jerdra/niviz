@@ -119,7 +119,7 @@ class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec):
     mask_file = File(exists=True,
                      resolve=True,
                      desc='ROI Mask for mosaic')
-                     
+
     masked = traits.Bool(False,
                      usedefault=True,
                      desc='Flag to indicate whether'
@@ -133,7 +133,7 @@ class _ISegOutputSpecRPT(reporting.ReportCapableOutputSpec):
 class ISegRPT(nrc.SegmentationRC):
     '''
     Class to generate registration images from pre-existing
-    NIFTI files. 
+    NIFTI files.
 
     Effectively acts as an Identity node with report
     generation as a side-effect.
@@ -143,10 +143,10 @@ class ISegRPT(nrc.SegmentationRC):
     input_spec = _ISegInputSpecRPT
     output_spec = _ISegOutputSpecRPT
 
-    def _post_run_hook(self, runtime):
+    def _post_run_hook(self, runtime: Bunch) -> Bunch:
         '''
         Do nothing but propogate properties
-        to (first) parent class of ISegRPT
+        to parent class of ISegRPT
         that is nrc.SegmentationRC
         '''
 
@@ -159,5 +159,17 @@ class ISegRPT(nrc.SegmentationRC):
         # Propogate to superclass
         return super(ISegRPT, self)._post_run_hook(runtime)
 
-    def _run_interface(self, runtime):
+    def _run_interface(self, runtime: Bunch) -> Bunch:
+        """Main function of ISegRPT, does nothing.
+
+        Implements identity operation. ISegRPT expects
+        fully registered inputs, so no operations are performed.
+
+        Args:
+            runtime: Nipype runtime object
+
+        Returns:
+            runtime: Resultant runtime object (unchanged)
+
+        """
         return runtime

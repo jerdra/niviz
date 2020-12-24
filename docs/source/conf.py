@@ -52,6 +52,7 @@ exclude_patterns = []
 
 smv_branch_whitelist = r'^dev$'
 smv_released_pattern = r'^tags/.*$'
+smv_remote_whitelist = r'^origin$'
 
 # --- Autodoc Options -------------------------------------------------------
 

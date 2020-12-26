@@ -144,11 +144,19 @@ class ISegRPT(nrc.SegmentationRC):
     output_spec = _ISegOutputSpecRPT
 
     def _post_run_hook(self, runtime: Bunch) -> Bunch:
-        '''
-        Do nothing but propogate properties
-        to parent class of ISegRPT
-        that is nrc.SegmentationRC
-        '''
+        """Side-effect function of ISegRPT.
+
+        Generate transition report as a side-effect. No operations
+        are performed on the data (identity)
+
+        Args:
+            runtime: Nipype runtime object
+
+        Returns:
+            runtime: Resultant runtime object propogated through ReportCapable
+            interfaces
+
+        """
 
         # Set variables for `nrc.SegmentationRC`
         self._anat_file = self.inputs.anat_file

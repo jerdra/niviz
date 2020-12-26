@@ -35,24 +35,25 @@ jobs:
         run: |
           pip install -q -e .[docs]
 
-      # Rule 2/3
+      # Rule 2
       - name: Build documentation of current commit
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        if: github.event_name == 'pull_request'
         run: make -C docs/ html
 
-      # Rule 3
-      - name: Make dev subdirectory
-        if: github.event_name == 'push'
-        run: |
-          mkdir docs/build/html/dev
-          mv docs/builds/html/* dev
-
-      # Rule 1
+      # Rule 1 & 3
+      # We build all docs just so that dev can correctly point to other versions
+      # but we won't update the other docs
       - name: Build version stack of documentation
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || github.event_name == 'push'
         run: |
           git fetch --all
           sphinx-multiversion docs/source docs/build/html
+
+      # Small optimization to reduce upload burden
+      - name: Remove other versions of documentation
+        if: github.event_name == 'push'
+        run: |
+          ls ./docs/build/html | grep -v dev | xargs -I {} rm -rfv ./docs/build/html/{}
 
       - name: Upload build results
         uses: actions/upload-artifact@v2
@@ -79,18 +80,32 @@ jobs:
           path: docs/build/
 
       # Set up re-direct index.html page to latest tag
-      - name: Set up index redirect
+      - name: Set up index redirect and prevent jekyll rendering
         if: github.event_name == 'release'
         shell: bash
         run: |
           git fetch --prune --unshallow --tags
           LATEST_TAG=$(git describe --abbrev=0 --tags)
           echo "<meta http-equiv='refresh' content='0; url=./${LATEST_TAG}/index.html' />" > ./docs/build/html/index.html
+          touch ./docs/build/html/.nojekyll 
 
+      # A clean push only on releases
       - name: Publish to gh-pages
+        if: github.event_name == 'release'
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
           FOLDER: docs/build/html
           CLEAN: true
+
+      # When dev push
+      - name: Publish dev documentation
+        if: github.event_name == 'push'
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: docs/build/html/dev/
+          CLEAN: true
+          TARGET_FOLDER: dev/

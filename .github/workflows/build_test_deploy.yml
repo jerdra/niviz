@@ -1,42 +1,59 @@
 ---
 name: Build-Docs
 
-# Build during PRs and Pushes to the repo at any branch
+# WORKFLOW RULES:
+# 1. Multiversion docs should only ever be built when generating a new tag
+# 2. Current documentation should always be built on a Pull Request, but not deployed
+# 3. "dev" documentation should only be pushed when development documentation is updated
+
 on:
-  - pull_request
-  - push
+  # Rule 1 
+  release:
+    types: [published]
+  # Rule 2
+  pull_request:
+  # Rule 3
+  push:
+    branches: [dev]
+
 
 jobs:
   build-docs:
     name: Construct sphinx version docs
     runs-on: ubuntu-latest
     steps:
-      # Checkout code
+
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Set up Python - implement a matrix afterwards
       - name: Set up python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
-      # Install package docs
       - name: Install docs dependencies
         run: |
           pip install -q -e .[docs]
 
-      # Build current version of documentation and emit as artifact
+      # Rule 2/3
       - name: Build documentation of current commit
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
         run: make -C docs/ html
 
-      # Build all versions of documentation
+      # Rule 3
+      - name: Make dev subdirectory
+        if: github.event_name == 'push'
+        run: |
+          mkdir docs/build/html/dev
+          mv docs/builds/html/* dev
+
+      # Rule 1
       - name: Build version stack of documentation
+        if: github.event_name == 'release'
         run: |
           git fetch --all
           sphinx-multiversion docs/source docs/build/html
 
-      # Store documentation artifact for deployment
       - name: Upload build results
         uses: actions/upload-artifact@v2
         with:
@@ -44,33 +61,32 @@ jobs:
           path: docs/build
 
 
+  # Implement Rule 1 and 3
   deploy-docs:
     name: Publish docs to gh-pages
     runs-on: ubuntu-latest
     needs: build-docs
+    if: github.event_name == 'release' || github.event_name == 'push'
     steps:
 
-      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Download documentation
       - name: Download multi-docs
         uses: actions/download-artifact@v2
         with:
           name: multidocs
           path: docs/build/
 
-      # Set up re-direct index.html page
+      # Set up re-direct index.html page to latest tag
       - name: Set up index redirect
+        if: github.event_name == 'release'
         shell: bash
         run: |
-          ls
           git fetch --prune --unshallow --tags
           LATEST_TAG=$(git describe --abbrev=0 --tags)
           echo "<meta http-equiv='refresh' content='0; url=./${LATEST_TAG}/index.html' />" > ./docs/build/html/index.html
 
-      # Publish
       - name: Publish to gh-pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:

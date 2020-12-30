@@ -235,12 +235,19 @@ generation as a side-effect.</p>
 <dl class="py method">
 <dt id="niviz.interfaces.views.ISegRPT._post_run_hook">
 <code class="sig-name descname">_post_run_hook</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runtime</span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do nothing but propogate properties
-to parent class of ISegRPT
-that is nrc.SegmentationRC</p>
+<dd><p>Side-effect function of ISegRPT.</p>
+<p>Generate transition report as a side-effect. No operations
+are performed on the data (identity)</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object propogated through ReportCapable
+interfaces</p>
+</dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Bunch</p>
+<dd class="field-odd"><p>runtime</p>
 </dd>
 </dl>
 </dd></dl>
@@ -356,10 +363,6 @@ compress_report: [“auto”, true, false]</p>
     <span class="fa fa-caret-down"></span>
   </span>
   <div class="rst-other-versions">
-    <dl>
-      <dt>Tags</dt>
-      <dd><a href="../0.3.0/niviz.interfaces.html">0.3.0</a></dd>
-    </dl>
     <dl>
       <dt>Branches</dt>
       <dd><a href="niviz.interfaces.html">dev</a></dd>

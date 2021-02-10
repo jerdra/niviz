@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Optional
+
 import os
 import logging
 import logging.config
@@ -21,7 +24,7 @@ class ValidationError(ValueError):
     pass
 
 
-def _nested_update(d, u):
+def _nested_update(d: dict, u: dict) -> dict:
     '''
     Recursive updating of nested dict
     https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
@@ -33,7 +36,8 @@ def _nested_update(d, u):
             d[k] = v
 
 
-def _prefix_path(x, prefix):
+# TODO use Path module
+def _prefix_path(x: str, prefix: str) -> str:
     '''
     Prefix path with root directory
     '''
@@ -48,7 +52,7 @@ class SpecConfig(object):
     Class to provide interface to configuration
     specs for sourcing QC input files
     '''
-    def __init__(self, yml, schema):
+    def __init__(self, yml: str, schema: str) -> None:
 
         # Validate yaml object and store original file
         config = yaml.load(yml)
@@ -72,7 +76,7 @@ class SpecConfig(object):
 
         self.defaults = defaults
 
-    def _substitute_env(self, env):
+    def _substitute_env(self, env: str) -> str:
 
         r = os.path.expandvars(env)
         unresolved = re.findall("\\$[A-Za-z0-9]", r)
@@ -85,7 +89,7 @@ class SpecConfig(object):
             raise ValidationError
         return r
 
-    def _validate(self, yml, schema):
+    def _validate(self, yml: dict, schema: dict) -> None:
         '''
         Validate YAML file
 
@@ -93,16 +97,16 @@ class SpecConfig(object):
             ValidationError
         '''
 
-        pass
+        return
 
-    def get_file_args(self, base_path):
+    def get_file_args(self, base_path: str) -> list[list[ArgInputSpec]]:
         '''
         Construct arg list
         '''
 
         return [self._get_file_arg(f, base_path) for f in self.file_specs]
 
-    def _get_file_arg(self, spec, base_path):
+    def _get_file_arg(self, spec, base_path: str) -> list[ArgInputSpec]:
         '''
         Construct arg
         '''
@@ -111,7 +115,7 @@ class SpecConfig(object):
         _spec['args'] = self._apply_envs(spec['args'])
         return FileSpec(_spec).gen_args(base_path)
 
-    def _apply_envs(self, args):
+    def _apply_envs(self, args: list[dict]) -> list[dict]:
 
         if 'env' not in self.defaults:
             return args
@@ -130,7 +134,7 @@ class FileSpec(object):
     '''
     Class to implement QcSpec
     '''
-    def __init__(self, spec, base_path=None):
+    def __init__(self, spec, base_path: Optional[str] = None) -> None:
 
         self.spec = spec
 
@@ -141,36 +145,37 @@ class FileSpec(object):
             }
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.spec['name']
 
     @property
-    def method(self):
+    def method(self) -> str:
         return self.spec['method']
 
     @property
-    def args(self):
+    def args(self) -> dict:
         return self.spec['args']
 
-    def iter_args(self):
+    # TODO: Implement args type
+    def iter_args(self) -> tuple[str, str, bool]:
         for f in self.args:
 
             bids = f['nobids'] if 'nobids' in f else False
             yield (f['field'], f['value'], bids)
 
     @property
-    def bids_map(self):
+    def bids_map(self) -> dict:
         return self.spec['bids_map']
 
     @property
-    def out_path(self):
+    def out_path(self) -> str:
         return self.spec['out_path']
 
     @property
-    def match_on(self):
+    def match_on(self) -> list[str]:
         return self.spec['match_on']
 
-    def _extract_bids_entities(self, path):
+    def _extract_bids_entities(self, path: str) -> tuple[tuple[str, ...], ...]:
         '''
         Extract BIDS entities from path
 
@@ -203,7 +208,7 @@ class FileSpec(object):
 
         return tuple(res)
 
-    def gen_args(self, base_path):
+    def gen_args(self, base_path: str) -> list[ArgInputSpec]:
         # TODO: Add docstring
 
         # TODO: Consider making args a class or dataclass
@@ -256,7 +261,7 @@ class ArgInputSpec:
     method: str
 
 
-def fetch_data(config, base_path):
+def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:
 
     '''
     Helper function to provide a list of arguments

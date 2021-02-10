@@ -1,3 +1,9 @@
+"""
+Contains classes/methods that validate and use a pipeline's
+output configuration specification to generate arguments
+for nipype ReportCapableInterfaces
+"""
+
 from __future__ import annotations
 from typing import Optional
 

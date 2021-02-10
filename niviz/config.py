@@ -82,8 +82,7 @@ class SpecConfig(object):
                 logger.error(f"Undefined environment variable {u}!")
                 for u in unresolved
             ]
-            # TODO: Substitute this for a proper error
-            raise ValueError
+            raise ValidationError
         return r
 
     def _validate(self, yml, schema):

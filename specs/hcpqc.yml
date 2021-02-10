@@ -27,7 +27,6 @@ filespecs:
       modality:
         value: T1w
     out_path: "{sub}/anat/{sub}_{desc}.svg"
-    match_on: [sub]
 
   - name: t2w_biasfield
     method: registration
@@ -44,7 +43,6 @@ filespecs:
       modality:
         value: T2w
     out_path: "{sub}/anat/{sub}_{desc}.svg"
-    match_on: [sub]
 
   - name: t1w_mask
     method: segmentation
@@ -63,7 +61,6 @@ filespecs:
       modality:
         value: T1w
     out_path: "{sub}/anat/{sub}_{desc}.svg"
-    match_on: [sub]
 
   - name: t2w_mask
     method: segmentation
@@ -82,7 +79,6 @@ filespecs:
       modality:
         value: T2w
     out_path: "{sub}/anat/{sub}_{desc}.svg"
-    match_on: [sub]
 
 
   - name: t1w_t2w_coreg
@@ -97,7 +93,7 @@ filespecs:
         regex: True
       desc:
         value: t1wt2wcoreg
-      out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "{sub}/anat/{sub}_{desc}.svg"
 
   - name: t1w2mni_reg
     method: registration
@@ -136,7 +132,6 @@ filespecs:
         value: "(?<=run-)[A-Za-z1-9]+"
       desc: epi2t1w
     out_path: "{sub}/{ses}/func/{sub}_{ses}_{task}_{run}_{desc}.nii.gz"
-    match_on: [sub, ses, task, run]
 
   - name: epi_sdc
     method: registration
@@ -155,6 +150,5 @@ filespecs:
       run: 
         regex: True
         value: "(?<=run-)[A-Za-z1-9]+"
-        desc: episdc
+      desc: episdc
     out_path: "{sub}/{ses}/func/{sub}_{ses}_{task}_{run}_{desc}.nii.gz"
-    match_on: [sub, ses, task, run]

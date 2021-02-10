@@ -13,6 +13,8 @@ import glob.glob as glob
 from itertools import groupby
 from dataclasses import dataclass
 
+from operator import itemgetter
+
 logging.config.fileConfig("logging.conf")
 
 # Initialize module logger
@@ -171,10 +173,6 @@ class FileSpec(object):
     def out_path(self) -> str:
         return self.spec['out_path']
 
-    @property
-    def match_on(self) -> list[str]:
-        return self.spec['match_on']
-
     def _extract_bids_entities(self, path: str) -> tuple[tuple[str, ...], ...]:
         '''
         Extract BIDS entities from path
@@ -228,7 +226,7 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
 
-        matched = groupby(bids_results, lambda x: x['bids'])
+        matched = groupby(bids_results, itemgetter("bids"))
 
         arg_specs = []
         for bids_entities, grouped in matched:

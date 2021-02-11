@@ -8,6 +8,8 @@ import niworkflows.interfaces.report_base as nrc
 from nipype.interfaces.base import File, traits, InputMultiPath
 from nipype.interfaces.mixins import reporting
 
+from ..view_adapter import register_interface
+
 """
 ReportCapable concrete classes for generating reports as side-effects
 """
@@ -181,3 +183,8 @@ class ISegRPT(nrc.SegmentationRC):
 
         """
         return runtime
+
+
+# Register interfaces with adapter-factory
+register_interface(IRegRPT, 'registration')
+register_interface(ISegRPT, 'segmentation')

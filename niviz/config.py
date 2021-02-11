@@ -17,9 +17,10 @@ import yaml
 import re
 import glob.glob as glob
 from itertools import groupby
-from dataclasses import dataclass
 
 from operator import itemgetter
+
+from .config import ArgInputSpec
 
 logging.config.fileConfig("logging.conf")
 
@@ -242,27 +243,12 @@ class FileSpec(object):
 
             arg_specs.append(
                 ArgInputSpec(name=self.name,
-                             argmap=bids_argmap,
+                             interface_args=bids_argmap,
                              bids_entities=bids_entities,
                              out_path=self.out_path,
                              method=self.method))
 
         return arg_specs
-
-
-@dataclass
-class ArgInputSpec:
-    '''
-    Class to record information about a
-    set of files should be defined as inputs
-    '''
-    # TODO: add method to generate nipype node from args
-    # Need a NodeFactory
-    name: str
-    argmap: dict = None
-    bids_entities: tuple[tuple[str, str]]
-    out_path: str
-    method: str
 
 
 def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:

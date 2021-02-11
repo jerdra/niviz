@@ -26,7 +26,7 @@ filespecs:
         value: t1wbiasfield
       modality:
         value: T1w
-    out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
   - name: t2w_biasfield
     method: registration
@@ -42,7 +42,7 @@ filespecs:
         value: t2wreg
       modality:
         value: T2w
-    out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
   - name: t1w_mask
     method: segmentation
@@ -60,7 +60,7 @@ filespecs:
         value: t1wbrainmask
       modality:
         value: T1w
-    out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
   - name: t2w_mask
     method: segmentation
@@ -78,7 +78,7 @@ filespecs:
         value: t2wbrainmask
       modality:
         value: T2w
-    out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
 
   - name: t1w_t2w_coreg
@@ -93,7 +93,7 @@ filespecs:
         regex: True
       desc:
         value: t1wt2wcoreg
-    out_path: "{sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
   - name: t1w2mni_reg
     method: registration
@@ -108,7 +108,7 @@ filespecs:
         regex: True
       desc:
         value: t1w2mni
-    out_path: "${sub}/anat/{sub}_{desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}.svg"
 
     ### VOLUMETRIC ANATOMICAL END ###
     
@@ -131,7 +131,7 @@ filespecs:
         regex: True
         value: "(?<=run-)[A-Za-z1-9]+"
       desc: epi2t1w
-    out_path: "{sub}/{ses}/func/{sub}_{ses}_{task}_{run}_{desc}.nii.gz"
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"
 
   - name: epi_sdc
     method: registration
@@ -151,4 +151,4 @@ filespecs:
         regex: True
         value: "(?<=run-)[A-Za-z1-9]+"
       desc: episdc
-    out_path: "{sub}/{ses}/func/{sub}_{ses}_{task}_{run}_{desc}.nii.gz"
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"

@@ -12,6 +12,7 @@ import logging
 import logging.config
 import collections.abc
 from string import Template
+from pathlib import Path
 
 import yaml
 import re
@@ -61,12 +62,17 @@ class SpecConfig(object):
     Class to provide interface to configuration
     specs for sourcing QC input files
     '''
+
+    _yaml: Path
+    defaults: dict
+    file_specs: dict
+
     def __init__(self, yml: str, schema: str) -> None:
 
         # Validate yaml object and store original file
         config = yaml.load(yml)
         self._validate(yml, schema)
-        self._yaml = yml
+        self._yaml = Path(yml)
 
         defaults = config.get("global", {})
 
@@ -87,6 +93,22 @@ class SpecConfig(object):
 
     def _substitute_env(self, env: str) -> str:
 
+        '''
+        Resolve system environment variables specified in global.env
+
+        Note:
+            All environment variables must be resolved
+
+        Args:
+            env: Strings in global.env containing environment variables
+
+        Output:
+            r: String with resolved environment variables
+
+        Raises:
+            ValidationError: If environment variables cannot be resolved
+        '''
+
         r = os.path.expandvars(env)
         unresolved = re.findall("\\$[A-Za-z0-9]", r)
 
@@ -102,22 +124,44 @@ class SpecConfig(object):
         '''
         Validate YAML file
 
+        Args:
+            yml: Configuration specification
+            schema: Schema definition to validate against
+
         Raises:
-            ValidationError
+            ValidationError: If yml does not follow defined schema
         '''
 
         return
 
     def get_file_args(self, base_path: str) -> list[list[ArgInputSpec]]:
         '''
-        Construct arg list
+        Scrape `base_path` using configuration spec and construct
+        arguments for image generation
+
+        Args:
+            base_path: Base path of outputs to scrape
+
+        Returns:
+            List of lists where each outer list defines a FileSpec entry
+            and each inner-list defines a list of `ArgInputSpecs` used to
+            generate an individual SVG image
         '''
 
         return [self._get_file_arg(f, base_path) for f in self.file_specs]
 
-    def _get_file_arg(self, spec, base_path: str) -> list[ArgInputSpec]:
+    def _get_file_arg(self, spec: dict, base_path: str) -> list[ArgInputSpec]:
         '''
-        Construct arg
+        Construct argument for a single FileSpec
+
+        Args:
+            spec: Specification describing how to scrape files within
+                pipeline outputs
+            base_path: Root directory of pipeline outputs
+
+        Returns:
+            List of `ArgInputSpec` objects used to construct
+            nipype.interfaces.mixins.ReportCapableInterface objects
         '''
 
         _spec = _nested_update(spec, self.defaults.get('bids_map', {}))
@@ -125,11 +169,21 @@ class SpecConfig(object):
         return FileSpec(_spec).gen_args(base_path)
 
     def _apply_envs(self, args: list[dict]) -> list[dict]:
+        '''
+        Apply specification global.env to values in dict
+
+        Args:
+            args: ReportCapableInterface to glob 'value' field with
+                global variables to be substituted
+
+        Returns:
+            arg_list: ReportCapableInterface to 'value' field with
+                global variables resolved
+        '''
 
         if 'env' not in self.defaults:
             return args
 
-        # For each environment variable
         arg_list = []
         for f in args:
             f['value'] = Template(args['value']).substitute(
@@ -167,6 +221,13 @@ class FileSpec(object):
 
     # TODO: Implement args type
     def iter_args(self) -> tuple[str, str, bool]:
+        '''
+        Returns:
+
+        A triple of
+        (argument key, argument value, whether value is a BIDS field or not).
+        Pulled from filespec[i].args in configuration spec
+        '''
         for f in self.args:
 
             bids = f['nobids'] if 'nobids' in f else False
@@ -184,10 +245,15 @@ class FileSpec(object):
         '''
         Extract BIDS entities from path
 
-        Raises ValueError if all keys in bids_map cannot
-        be found for a given path
+        Args:
+            path: Input path for a filespec.args key
 
-        Returns a tuple of BIDS (field,value) pairs
+        Raises:
+            ValueError: if all keys in bids_map cannot be found for a given
+                path
+
+        Returns:
+            a tuple of BIDS (field,value) pairs
         '''
 
         res = []
@@ -214,7 +280,17 @@ class FileSpec(object):
         return tuple(res)
 
     def gen_args(self, base_path: str) -> list[ArgInputSpec]:
-        # TODO: Add docstring
+        '''
+        Constructs arguments used to build Nipype ReportCapableInterfaces
+        using bids entities extracted from argument file paths and
+        additional settings in configuration specification
+
+        Args:
+            base_path: Path to root directory of pipeline outputs
+
+        Returns:
+            List of arguments for a given filespec[i].args
+        '''
 
         # TODO: Consider making args a class or dataclass
         bids_results = []
@@ -256,6 +332,14 @@ def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:
     '''
     Helper function to provide a list of arguments
     given a configuration spec and base path
+
+    Args:
+        config: Path to configuration specification
+        base_path: Path to root directory of pipeline outputs
+
+    Returns:
+        List of `ArgInputSpec` to be used to automate construction
+        of Nipype ReportCapableInterface objects
     '''
 
     cfg = SpecConfig(config)

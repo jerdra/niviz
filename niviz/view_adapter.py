@@ -4,7 +4,7 @@ to Nipype ReportCapableInterface
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from nipype.interfaces.mixins import reporting
 
@@ -22,12 +22,24 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ArgInputSpec:
     '''
-    Class to record information about a
-    set of files should be defined as inputs
+    Store configuration options and method key for constructing
+    Nipype ReportCapableInterface classes
+
+    Args:
+        out_path: Template string for building output path
+        bids_entities: BIDS entities (key,value) paired tuples
+
+    Attributes:
+        name: Name of SVG report being generated
+        method: Method key for to select which
+            `reporting.ReportCapableInterface` to select
+        interface_args: Dictionary of **kwargs to pass to
+            `reporting.ReportCapableInterface`
+        bids_output: Path to target SVG output
     '''
     name: str
-    interface_args: dict = None
     method: str
+    interface_args: dict = None
     bids_output: Path
 
     out_path: InitVar[str]
@@ -42,8 +54,8 @@ class ArgInputSpec:
         '''
 
         self.bids_output = Path(
-            Template(out_path).substitute(
-                {x[0]: x[1] for x in bids_entities}))
+            Template(out_path).substitute({x[0]: x[1]
+                                           for x in bids_entities}))
 
 
 class RPTFactory(object):
@@ -51,12 +63,25 @@ class RPTFactory(object):
     Factory class to generate Nipype RPT nodes
     given argument specification objects derived
     from niviz
+
+    Attributes:
+        _interfaces: Mapping method strings to
+            `reporting.ReportCapableInterface` subclass
     '''
 
-    _interfaces: reporting.ReportCapableInterface
+    _interfaces: dict[str, reporting.ReportCapableInterface]
 
     def get_interface(self,
                       spec: ArgInputSpec) -> reporting.ReportCapableInterface:
+        '''
+        Retrieve and configure interface from registered list
+
+        Args:
+            spec: Input specification for generating SVG image
+
+        Returns:
+            interface: Configured `reporting.ReportCapableInterface`
+        '''
 
         try:
             interface_class = self._interfaces[spec.method]
@@ -76,12 +101,37 @@ class RPTFactory(object):
 
     def register_interface(self,
                            rpt_interface: reporting.ReportCapableInterface,
-                           method: str) -> None:
+                           method: str,
+                           override: Optional[bool] = False) -> None:
         '''
         Register a RPT to enable creation with factory_method()
+
+        Args:
+            rpt_interface: `reporting.ReportCapableInterface` subclass
+            method: String key for accessing interface
+            override: Override an existing key if it exists
+
+        Raises:
+            KeyError: If method key already exists for another Interface
         '''
-        self._interfaces[method] = rpt_interface
+
+        if (method not in self._interfaces) or override:
+            self._interfaces[method] = rpt_interface
+        else:
+            logger.error(
+                f"Method already registered as {self._interfaces[method]}. "
+                " Use override=True to replace existing method key")
+            raise KeyError
         return
+
+    def view_interfaces(self) -> dict[str, reporting.ReportCapableInterface]:
+        '''
+        Return a mapping of currently registered interfaces
+
+        Returns:
+            registered_interfaces: Dictionary of registered interfaces
+        '''
+        return self._interfaces
 
 
 factory = RPTFactory()
@@ -91,6 +141,15 @@ def register_interface(rpt_interface: reporting.ReportCapableInterface,
                        method: str) -> None:
     '''
     Helper function to register a ReportCapableInterface to the persistent
-    RPTFactory instance
+    RPTFactory instance.
+
+    Calls RPTFactory().register_interface(*args)
+
+    Args:
+        rpt_interface: Nipype ReportCapableInterface class
+        method: String key for accessing Interface
+
+    Raises:
+        KeyError: If method key already exists for another Interface
     '''
     factory.register_interface(rpt_interface, method)

@@ -9,7 +9,6 @@ from nipype.interfaces.base import File, traits, InputMultiPath
 from nipype.interfaces.mixins import reporting
 
 from ..view_adapter import register_interface
-
 """
 ReportCapable concrete classes for generating reports as side-effects
 """
@@ -111,21 +110,18 @@ class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec):
                      desc='Anatomical image of SVG',
                      mandatory=True)
 
-    seg_files = InputMultiPath(
-                    File(exists=True,
-                         usedefault=False,
-                         resolve=True),
-                    desc='Segmentation image of SVG',
-                    mandatory=True)
+    seg_files = InputMultiPath(File(exists=True,
+                                    usedefault=False,
+                                    resolve=True),
+                               desc='Segmentation image of SVG',
+                               mandatory=True)
 
-    mask_file = File(exists=True,
-                     resolve=True,
-                     desc='ROI Mask for mosaic')
+    mask_file = File(exists=True, resolve=True, desc='ROI Mask for mosaic')
 
     masked = traits.Bool(False,
-                     usedefault=True,
-                     desc='Flag to indicate whether'
-                     ' image is already masked')
+                         usedefault=True,
+                         desc='Flag to indicate whether'
+                         ' image is already masked')
 
 
 class _ISegOutputSpecRPT(reporting.ReportCapableOutputSpec):

@@ -12,8 +12,6 @@ from pathlib import Path
 from string import Template
 from dataclasses import dataclass, InitVar
 
-import niviz.interfaces.views
-
 import logging
 import logging.config
 
@@ -41,7 +39,7 @@ class ArgInputSpec:
     '''
     name: str
     method: str
-    interface_args: dict = None
+    interface_args: dict
     bids_output: Path
 
     out_path: InitVar[str]
@@ -72,6 +70,9 @@ class RPTFactory(object):
     '''
 
     _interfaces: dict[str, reporting.ReportCapableInterface]
+
+    def __init__(self):
+        self._interfaces = {}
 
     def get_interface(self,
                       spec: ArgInputSpec) -> reporting.ReportCapableInterface:
@@ -154,6 +155,13 @@ def register_interface(rpt_interface: reporting.ReportCapableInterface,
     factory.register_interface(rpt_interface, method)
 
 
-# Avoid circular import problem
 factory = RPTFactory()
-niviz.interfaces.views._run_imports()
+
+
+# Avoid circular import problem
+def initialize_defaults():
+    import niviz.interfaces.views
+    niviz.interfaces.views._run_imports()
+
+
+initialize_defaults()

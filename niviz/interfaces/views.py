@@ -182,5 +182,6 @@ class ISegRPT(nrc.SegmentationRC):
 
 
 # Register interfaces with adapter-factory
-register_interface(IRegRPT, 'registration')
-register_interface(ISegRPT, 'segmentation')
+def _run_imports() -> None:
+    register_interface(IRegRPT, 'registration')
+    register_interface(ISegRPT, 'segmentation')

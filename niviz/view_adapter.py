@@ -12,6 +12,8 @@ from pathlib import Path
 from string import Template
 from dataclasses import dataclass, InitVar
 
+import niviz.interfaces.views
+
 import logging
 import logging.config
 
@@ -134,9 +136,6 @@ class RPTFactory(object):
         return self._interfaces
 
 
-factory = RPTFactory()
-
-
 def register_interface(rpt_interface: reporting.ReportCapableInterface,
                        method: str) -> None:
     '''
@@ -153,3 +152,8 @@ def register_interface(rpt_interface: reporting.ReportCapableInterface,
         KeyError: If method key already exists for another Interface
     '''
     factory.register_interface(rpt_interface, method)
+
+
+# Avoid circular import problem
+factory = RPTFactory()
+niviz.interfaces.views._run_imports()

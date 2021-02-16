@@ -8,6 +8,8 @@ from __future__ import annotations
 from typing import Optional
 
 import os
+import copy
+
 import logging
 import logging.config
 import collections.abc
@@ -15,8 +17,13 @@ from string import Template
 from pathlib import Path
 
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
+
 import re
-import glob.glob as glob
+from glob import glob
 from itertools import groupby
 
 from operator import itemgetter
@@ -44,6 +51,7 @@ def _nested_update(d: dict, u: dict) -> dict:
             d[k] = _nested_update(d.get(k, {}), v)
         else:
             d[k] = v
+    return d
 
 
 # TODO use Path module
@@ -51,8 +59,9 @@ def _prefix_path(x: str, prefix: str) -> str:
     '''
     Prefix path with root directory
     '''
-    if x.startswith("."):
-        return os.path.join(prefix, x[1:])
+
+    if x.startswith("./"):
+        return os.path.join(prefix, x.strip('.').strip('/'))
     else:
         return x
 
@@ -70,7 +79,9 @@ class SpecConfig(object):
     def __init__(self, yml: str, schema: str) -> None:
 
         # Validate yaml object and store original file
-        config = yaml.load(yml)
+        with open(yml, 'r') as ystream:
+            config = yaml.load(ystream, Loader=Loader)
+
         self._validate(yml, schema)
         self._yaml = Path(yml)
 
@@ -86,13 +97,12 @@ class SpecConfig(object):
         if 'env' in defaults:
             defaults['env'] = {
                 k: self._substitute_env(v)
-                for k, v in defaults['env'].iteritems()
+                for k, v in defaults['env'].items()
             }
 
         self.defaults = defaults
 
     def _substitute_env(self, env: str) -> str:
-
         '''
         Resolve system environment variables specified in global.env
 
@@ -110,7 +120,7 @@ class SpecConfig(object):
         '''
 
         r = os.path.expandvars(env)
-        unresolved = re.findall("\\$[A-Za-z0-9]", r)
+        unresolved = re.findall("\\$[A-Za-z0-9]+", r)
 
         if unresolved:
             [
@@ -164,7 +174,9 @@ class SpecConfig(object):
             nipype.interfaces.mixins.ReportCapableInterface objects
         '''
 
-        _spec = _nested_update(spec, self.defaults.get('bids_map', {}))
+        _spec = copy.deepcopy(spec)
+        _spec['bids_map'] = _nested_update(spec['bids_map'],
+                                           self.defaults.get('bids_map', {}))
         _spec['args'] = self._apply_envs(spec['args'])
         return FileSpec(_spec).gen_args(base_path)
 
@@ -186,8 +198,16 @@ class SpecConfig(object):
 
         arg_list = []
         for f in args:
-            f['value'] = Template(args['value']).substitute(
-                self.defaults['env'])
+
+            try:
+                f['value'] = Template(f['value']).substitute(
+                    self.defaults['env'])
+            except TypeError:
+                if not isinstance(f['value'], bool):
+                    logger.error("Unexpected value for argument "
+                                 f"{f['field']} given value {f['value']}!")
+                    raise
+
             arg_list.append(f)
 
         return arg_list
@@ -197,15 +217,9 @@ class FileSpec(object):
     '''
     Class to implement QcSpec
     '''
-    def __init__(self, spec, base_path: Optional[str] = None) -> None:
+    def __init__(self, spec) -> None:
 
         self.spec = spec
-
-        if base_path:
-            self.spec = {
-                f: _prefix_path(v, base_path)
-                for f, v in self.iter_args()
-            }
 
     @property
     def name(self) -> str:
@@ -258,7 +272,7 @@ class FileSpec(object):
 
         res = []
         raise_error = False
-        for k, v in self.bids_map.iteritems():
+        for k, v in self.bids_map.items():
 
             if 'regex' in v.keys():
                 try:
@@ -279,7 +293,7 @@ class FileSpec(object):
 
         return tuple(res)
 
-    def gen_args(self, base_path: str) -> list[ArgInputSpec]:
+    def gen_args(self, base_path: Optional[str] = None) -> list[ArgInputSpec]:
         '''
         Constructs arguments used to build Nipype ReportCapableInterfaces
         using bids entities extracted from argument file paths and
@@ -292,11 +306,12 @@ class FileSpec(object):
             List of arguments for a given filespec[i].args
         '''
 
-        # TODO: Consider making args a class or dataclass
         bids_results = []
         static_results = []
         for f, v, nobids in self.iter_args():
-            for p in glob(f"{v}", recursive=True):
+            if isinstance(v, str):
+                v = _prefix_path(v, os.path.abspath(base_path))
+            for p in glob(f"{v}"):
 
                 cur_mapping = ({
                     "field": f,
@@ -328,7 +343,6 @@ class FileSpec(object):
 
 
 def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:
-
     '''
     Helper function to provide a list of arguments
     given a configuration spec and base path

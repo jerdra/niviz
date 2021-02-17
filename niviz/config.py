@@ -331,10 +331,6 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
 
-        if not bids_results:
-            import pdb
-            pdb.set_trace()
-
         matched = groupby(sorted(bids_results, key=itemgetter(0)), itemgetter(0))
 
         arg_specs = []

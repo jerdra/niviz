@@ -37,13 +37,13 @@ class ArgInputSpec:
             `reporting.ReportCapableInterface`
         bids_output: Path to target SVG output
     '''
+    out_path: InitVar[str]
+    bids_entities: InitVar[tuple[tuple[str, str]]]
+
     name: str
     method: str
     interface_args: dict
-    bids_output: Path
-
-    out_path: InitVar[str]
-    bids_entities: InitVar[tuple[tuple[str, str]]]
+    bids_output: Path = None
 
     def __post_init__(self, out_path, bids_entities):
         '''

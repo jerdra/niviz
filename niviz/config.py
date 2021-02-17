@@ -270,14 +270,15 @@ class FileSpec(object):
             a tuple of BIDS (field,value) pairs
         '''
 
+        # TODO: Handle standards where no BIDS values are to be found
         res = []
         raise_error = False
         for k, v in self.bids_map.items():
 
-            if 'regex' in v.keys():
+            if v.get('regex',False):
                 try:
                     bids_val = re.search(v['value'], path)[0]
-                except IndexError:
+                except TypeError:
                     logger.error(
                         f"Cannot extract {k} from {path} using {v['regex']}!")
                     raise_error = True
@@ -324,12 +325,12 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
 
-        matched = groupby(bids_results, itemgetter("bids"))
+        matched = groupby(sorted(bids_results, key=itemgetter(0)), itemgetter(0))
 
         arg_specs = []
         for bids_entities, grouped in matched:
 
-            bids_argmap = {g["field"]: g["path"] for g in grouped}
+            bids_argmap = {g["field"]: g["path"] for _, g in grouped}
             bids_argmap.update({s["field"]: s["path"] for s in static_results})
 
             arg_specs.append(

@@ -5,7 +5,7 @@
 global:
   bids_map:
     sub:
-      value: "(?<=sub-)[A-Za-z1-9]+"
+      value: "(?<=sub-)[A-Za-z0-9]+"
   env:
     FSL_STANDARDS: "$FSLDIR/data/standard"
 

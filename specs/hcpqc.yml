@@ -32,9 +32,9 @@ filespecs:
     method: registration
     args:
       - field: bg_nii
-        value: ./*/T2w/T2w_acpc_dc.nii.gz
+        value: ./*/T1w/T2w_acpc_dc.nii.gz
       - field: fg_nii
-        value: ./*/T2w/T2w_acpc_dc_restore.nii.gz
+        value: ./*/T1w/T2w_acpc_dc_restore.nii.gz
     bids_map:
       sub:
         regex: True
@@ -66,9 +66,9 @@ filespecs:
     method: segmentation
     args:
       - field: anat_file
-        value: ./*/T2w/T2w_acpc_dc.nii.gz
+        value: ./*/T1w/T2w_acpc_dc.nii.gz
       - field: seg_files
-        value: ./*/T2w/T2w_acpc_dc_brainmask.nii.gz
+        value: ./*/T1w/T1w_acpc_brainmask.nii.gz
       - field: masked
         value: true
     bids_map:
@@ -123,14 +123,15 @@ filespecs:
     bids_map:
       ses: 
         regex: True
-        value: "(?<=ses-)[A-Za-z1-9]+"
+        value: "(?<=ses-)[A-Za-z0-9]+"
       task: 
         regex: True
-        value: "(?<=task-)[A-Za-z1-9]+"
+        value: "(?<=task-)[A-Za-z0-9]+"
       run: 
         regex: True
-        value: "(?<=run-)[A-Za-z1-9]+"
-      desc: epi2t1w
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc: 
+        value: epi2t1w
     out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"
 
   - name: epi_sdc
@@ -143,12 +144,13 @@ filespecs:
     bids_map:
       ses: 
         regex: True
-        value: "(?<=ses-)[A-Za-z1-9]+"
+        value: "(?<=ses-)[A-Za-z0-9]+"
       task: 
         regex: True
-        value: "(?<=task-)[A-Za-z1-9]+"
+        value: "(?<=task-)[A-Za-z0-9]+"
       run: 
         regex: True
-        value: "(?<=run-)[A-Za-z1-9]+"
-      desc: episdc
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc: 
+        value: episdc
     out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"

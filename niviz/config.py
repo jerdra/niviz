@@ -244,7 +244,7 @@ class FileSpec(object):
         '''
         for f in self.args:
 
-            bids = f['nobids'] if 'nobids' in f else False
+            bids = f['no_bids'] if 'no_bids' in f else False
             yield (f['field'], f['value'], bids)
 
     @property
@@ -275,6 +275,12 @@ class FileSpec(object):
         raise_error = False
         for k, v in self.bids_map.items():
 
+            if not isinstance(v, dict):
+                logger.error("Config dict configured incorrectly!")
+                logger.error(f"Key given is {v}")
+                raise ValidationError
+
+            bids_val = None
             if v.get('regex',False):
                 try:
                     bids_val = re.search(v['value'], path)[0]
@@ -325,6 +331,10 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
 
+        if not bids_results:
+            import pdb
+            pdb.set_trace()
+
         matched = groupby(sorted(bids_results, key=itemgetter(0)), itemgetter(0))
 
         arg_specs = []
@@ -332,13 +342,13 @@ class FileSpec(object):
 
             bids_argmap = {g["field"]: g["path"] for _, g in grouped}
             bids_argmap.update({s["field"]: s["path"] for s in static_results})
-
-            arg_specs.append(
-                ArgInputSpec(name=self.name,
+            arg_spec = ArgInputSpec(name=self.name,
                              interface_args=bids_argmap,
                              bids_entities=bids_entities,
                              out_path=self.out_path,
-                             method=self.method))
+                             method=self.method)
+
+            arg_specs.append(arg_spec)
 
         return arg_specs
 

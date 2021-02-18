@@ -28,7 +28,7 @@ from itertools import groupby
 
 from operator import itemgetter
 
-from .view_adapter import ArgInputSpec
+from .viewer import ArgInputSpec
 
 logging.config.fileConfig("logging.conf")
 

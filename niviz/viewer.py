@@ -164,4 +164,20 @@ def initialize_defaults():
     niviz.interfaces.views._run_imports()
 
 
+def get_interfaces_from_specs(
+        arg_specs: list[ArgInputSpec]) -> reporting.ReportCapableInterface:
+    '''
+    Generate Nipype ReportCapableInterfaces from a list of
+    ArgInputSpecs
+
+    Args:
+        arg_specs:  Iterable of ArgInputSpecs containing instructions for
+        building visualization interfaces
+
+    Returns:
+        Iterable of Nipype ReportCapableInterfaces
+    '''
+    return [factory.get_interface(a) for a in arg_specs]
+
+
 initialize_defaults()

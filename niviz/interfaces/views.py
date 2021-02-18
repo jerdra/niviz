@@ -8,7 +8,7 @@ import niworkflows.interfaces.report_base as nrc
 from nipype.interfaces.base import File, traits, InputMultiPath
 from nipype.interfaces.mixins import reporting
 
-from ..viewer import register_interface
+from ..node_factory import register_interface
 """
 ReportCapable concrete classes for generating reports as side-effects
 """
@@ -35,7 +35,7 @@ class _IRegInputSpecRPT(nrc._SVGReportCapableInputSpec):
                     usedefault=False,
                     resolve=True,
                     desc='Contours to include in image',
-                    mandatory=True)
+                    mandatory=False)
 
 
 class _IRegOutputSpecRPT(reporting.ReportCapableOutputSpec):

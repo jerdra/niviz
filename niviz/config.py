@@ -28,7 +28,7 @@ from itertools import groupby
 
 from operator import itemgetter
 
-from .viewer import ArgInputSpec
+from .node_factory import ArgInputSpec
 
 logging.config.fileConfig("logging.conf")
 
@@ -363,5 +363,12 @@ def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:
         of Nipype ReportCapableInterface objects
     '''
 
-    cfg = SpecConfig(config)
-    return cfg.get_file_args(base_path)
+    # TODO: Implement schema
+    cfg = SpecConfig(config, '')
+
+    # Unnest output
+    return [
+            a for c in
+            cfg.get_file_args(base_path)
+            for a in c
+    ]

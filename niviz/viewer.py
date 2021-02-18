@@ -140,6 +140,10 @@ class RPTFactory(object):
         return self._interfaces
 
 
+
+
+factory = RPTFactory()
+
 def register_interface(rpt_interface: reporting.ReportCapableInterface,
                        method: str) -> None:
     '''
@@ -156,10 +160,6 @@ def register_interface(rpt_interface: reporting.ReportCapableInterface,
         KeyError: If method key already exists for another Interface
     '''
     factory.register_interface(rpt_interface, method)
-
-
-factory = RPTFactory()
-
 
 # Avoid circular import problem
 def initialize_defaults():

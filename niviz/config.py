@@ -158,7 +158,9 @@ class SpecConfig(object):
             generate an individual SVG image
         '''
 
-        return [self._get_file_arg(f, base_path) for f in self.file_specs]
+        return [
+            self._get_file_arg(f, base_path) for f in self.file_specs
+        ]
 
     def _get_file_arg(self, spec: dict, base_path: str) -> list[ArgInputSpec]:
         '''
@@ -217,7 +219,7 @@ class FileSpec(object):
     '''
     Class to implement QcSpec
     '''
-    def __init__(self, spec) -> None:
+    def __init__(self, spec: dict) -> None:
 
         self.spec = spec
 
@@ -281,7 +283,7 @@ class FileSpec(object):
                 raise ValidationError
 
             bids_val = None
-            if v.get('regex',False):
+            if v.get('regex', False):
                 try:
                     bids_val = re.search(v['value'], path)[0]
                 except TypeError:
@@ -300,7 +302,9 @@ class FileSpec(object):
 
         return tuple(res)
 
-    def gen_args(self, base_path: Optional[str] = None) -> list[ArgInputSpec]:
+    def gen_args(self,
+                 base_path: str,
+                 out_path: str) -> list[ArgInputSpec]:
         '''
         Constructs arguments used to build Nipype ReportCapableInterfaces
         using bids entities extracted from argument file paths and
@@ -331,7 +335,8 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
 
-        matched = groupby(sorted(bids_results, key=itemgetter(0)), itemgetter(0))
+        matched = groupby(sorted(bids_results, key=itemgetter(0)),
+                          itemgetter(0))
 
         arg_specs = []
         for bids_entities, grouped in matched:
@@ -339,10 +344,10 @@ class FileSpec(object):
             bids_argmap = {g["field"]: g["path"] for _, g in grouped}
             bids_argmap.update({s["field"]: s["path"] for s in static_results})
             arg_spec = ArgInputSpec(name=self.name,
-                             interface_args=bids_argmap,
-                             bids_entities=bids_entities,
-                             out_path=self.out_path,
-                             method=self.method)
+                                    interface_args=bids_argmap,
+                                    bids_entities=bids_entities,
+                                    out_path=self.out_path,
+                                    method=self.method)
 
             arg_specs.append(arg_spec)
 
@@ -367,8 +372,4 @@ def fetch_data(config: str, base_path: str) -> list[ArgInputSpec]:
     cfg = SpecConfig(config, '')
 
     # Unnest output
-    return [
-            a for c in
-            cfg.get_file_args(base_path)
-            for a in c
-    ]
+    return [a for c in cfg.get_file_args(base_path) for a in c]

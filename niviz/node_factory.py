@@ -7,13 +7,15 @@ create interfaces
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 if TYPE_CHECKING:
     from nipype.interfaces.mixins import reporting
 
+import os
 from pathlib import Path
 from string import Template
 from dataclasses import dataclass, InitVar
+from copy import deepcopy
 
 import logging
 import logging.config
@@ -40,14 +42,15 @@ class ArgInputSpec:
             `reporting.ReportCapableInterface`
         bids_output: Path to target SVG output
     '''
-    out_path: InitVar[str]
+    out_spec: InitVar[str]
     bids_entities: InitVar[tuple[tuple[str, str]]]
 
     name: str
     method: str
     interface_args: dict
+    _out_spec: Path = None
 
-    def __post_init__(self, out_path, bids_entities):
+    def __post_init__(self, out_spec, bids_entities):
         '''
         Construct final output path
 
@@ -55,13 +58,36 @@ class ArgInputSpec:
             KeyError if BIDS entities required for output_path are missing
         '''
 
-        self.interface_args.update({
-            'out_report':
-            Path(
-                Template(out_path).substitute(
-                    {x[0]: f"{x[0]}-{x[1]}"
-                     for x in bids_entities}))
-        })
+        self._out_spec = Path(
+            Template(out_spec).substitute(
+                {x[0]: f"{x[0]}-{x[1]}"
+                 for x in bids_entities}))
+
+    def make_interface_args(self,
+                            out_path: Union[str, Path],
+                            make_dirs: Optional[bool] = False) -> dict:
+        '''
+        Returns a dictionary to construct a ReportCapableInterface
+
+        Args:
+            out_path:   Path to root directory for outputting SVGs
+            make_dirs:  Create final output directory
+
+        Returns:
+            kwargs to build ReportCapableInterface
+        '''
+
+        if not isinstance(out_path, Path):
+            out_path = Path(out_path)
+
+        interface_args = deepcopy(self.interface_args)
+        out_dir = out_path / self._out_spec
+
+        if make_dirs:
+            os.makedirs(out_dir, exist_ok=True)
+
+        interface_args.update({'out_report': out_dir})
+        return interface_args
 
 
 class RPTFactory(object):
@@ -80,13 +106,18 @@ class RPTFactory(object):
     def __init__(self):
         self._interfaces = {}
 
-    def get_interface(self,
-                      spec: ArgInputSpec) -> reporting.ReportCapableInterface:
+    def get_interface(
+            self,
+            spec: ArgInputSpec,
+            out_path: Union[str, Path],
+            make_dirs: Optional[bool] = False
+    ) -> reporting.ReportCapableInterface:
         '''
         Retrieve and configure interface from registered list
 
         Args:
             spec: Input specification for generating SVG image
+            out_path: Output path to store SVG files
 
         Returns:
             interface: Configured `reporting.ReportCapableInterface`
@@ -104,7 +135,8 @@ class RPTFactory(object):
             raise
 
         # Create and configure node args
-        return interface_class(generate_report=True, **spec.interface_args)
+        return interface_class(generate_report=True,
+                               **spec.make_interface_args(out_path, make_dirs))
 
     def register_interface(self,
                            rpt_interface: reporting.ReportCapableInterface,
@@ -162,7 +194,10 @@ def register_interface(rpt_interface: reporting.ReportCapableInterface,
     factory.register_interface(rpt_interface, method)
 
 
-def get_interface(spec: ArgInputSpec) -> reporting.ReportCapableInterface:
+def get_interface(
+        spec: ArgInputSpec,
+        out_path: Union[str, Path],
+        make_dirs: Optional[bool] = True) -> reporting.ReportCapableInterface:
     '''
     Generate Nipype ReportCapableInterfaces from a list of
     ArgInputSpecs
@@ -174,7 +209,7 @@ def get_interface(spec: ArgInputSpec) -> reporting.ReportCapableInterface:
     Returns:
         Iterable of Nipype ReportCapableInterfaces
     '''
-    return factory.get_interface(spec)
+    return factory.get_interface(spec, out_path, make_dirs=make_dirs)
 
 
 # Avoid circular import problem

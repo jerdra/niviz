@@ -5,7 +5,6 @@ for nipype ReportCapableInterfaces
 """
 
 from __future__ import annotations
-from typing import Optional
 
 import os
 import copy
@@ -33,7 +32,7 @@ from .node_factory import ArgInputSpec
 logging.config.fileConfig("logging.conf")
 
 # Initialize module logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("config")
 
 
 class ValidationError(ValueError):
@@ -303,8 +302,7 @@ class FileSpec(object):
         return tuple(res)
 
     def gen_args(self,
-                 base_path: str,
-                 out_path: str) -> list[ArgInputSpec]:
+                 base_path: str) -> list[ArgInputSpec]:
         '''
         Constructs arguments used to build Nipype ReportCapableInterfaces
         using bids entities extracted from argument file paths and
@@ -346,7 +344,7 @@ class FileSpec(object):
             arg_spec = ArgInputSpec(name=self.name,
                                     interface_args=bids_argmap,
                                     bids_entities=bids_entities,
-                                    out_path=self.out_path,
+                                    out_spec=self.out_path,
                                     method=self.method)
 
             arg_specs.append(arg_spec)

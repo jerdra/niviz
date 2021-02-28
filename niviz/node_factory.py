@@ -21,7 +21,7 @@ import logging
 import logging.config
 
 logging.config.fileConfig("logging.conf")
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("nodeFactory")
 
 
 @dataclass
@@ -31,7 +31,7 @@ class ArgInputSpec:
     Nipype ReportCapableInterface classes
 
     Args:
-        out_path: Template string for building output path
+        out_spec: Template string for building output path
         bids_entities: BIDS entities (key,value) paired tuples
 
     Attributes:
@@ -84,7 +84,7 @@ class ArgInputSpec:
         out_dir = out_path / self._out_spec
 
         if make_dirs:
-            os.makedirs(out_dir, exist_ok=True)
+            os.makedirs(out_dir.parent, exist_ok=True)
 
         interface_args.update({'out_report': out_dir})
         return interface_args
@@ -135,8 +135,11 @@ class RPTFactory(object):
             raise
 
         # Create and configure node args
-        return interface_class(generate_report=True,
-                               **spec.make_interface_args(out_path, make_dirs))
+        interface_args = spec.make_interface_args(out_path, make_dirs)
+        logger.debug(
+            f"Constructing {spec.name} using {interface_class}")
+        logger.debug(f"Args:\n {interface_args}")
+        return interface_class(generate_report=True, **interface_args)
 
     def register_interface(self,
                            rpt_interface: reporting.ReportCapableInterface,

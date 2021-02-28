@@ -29,3 +29,6 @@ def cli():
         niviz.node_factory.get_interface(a, args.out_path).run()
         for a in arg_specs
     ]
+
+if __name__ == '__main__':
+    cli()

@@ -30,5 +30,6 @@ def cli():
         for a in arg_specs
     ]
 
+
 if __name__ == '__main__':
     cli()

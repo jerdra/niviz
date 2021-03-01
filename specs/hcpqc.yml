@@ -1,17 +1,17 @@
 
 # This YAML file describes a mapping from the HCP-Pipelines YAML structure into a BIDS-derivatives like specification.  A YAML-based parser `https://github.com/tigrlab/niviz/config.py` can then map these value to sets of BIDS entities
 
-# Set global variables that items in filespecs will inherit from by default
 global:
   bids_map:
     sub:
       value: "(?<=sub-)[A-Za-z0-9]+"
+  bids_hierarchy: ["sub", "ses", "task", "run"]
   env:
     FSL_STANDARDS: "$FSLDIR/data/standard"
 
 filespecs:
 
-  ### VOLUMETRIC ANATOMICAL START ###
+### VOLUMETRIC ANATOMICAL START ###
   - name: t1w_biasfield
     method: registration
     args:
@@ -50,7 +50,7 @@ filespecs:
       - field: anat_file
         value: ./*/T1w/T1w_acpc_dc.nii.gz
       - field: seg_files
-        value: ./*/T1w/T1w_acpc_dc_brainmask.nii.gz
+        value: ./*/T1w/T1w_acpc_brain_mask.nii.gz
       - field: masked
         value: true
     bids_map:
@@ -68,7 +68,7 @@ filespecs:
       - field: anat_file
         value: ./*/T1w/T2w_acpc_dc.nii.gz
       - field: seg_files
-        value: ./*/T1w/T1w_acpc_brainmask.nii.gz
+        value: ./*/T1w/T1w_acpc_brain_mask.nii.gz
       - field: masked
         value: true
     bids_map:
@@ -111,46 +111,51 @@ filespecs:
     out_path: "${sub}/anat/${sub}_${desc}.svg"
 
     ### VOLUMETRIC ANATOMICAL END ###
-    
-    ### VOLUMETRIC FUNCTIONAL START ###
-  - name: epi_t1w_coreg
-    method: registration
-    args:
-    - field: bg_nii
-      value: ./*/*_bold/*_mc.nii.gz
-    - field: fg_nii
-      value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRandFreesurferBBRbased/T1w_acpc_dc_restore_brain.nii.gz
-    bids_map:
-      ses: 
-        regex: True
-        value: "(?<=ses-)[A-Za-z0-9]+"
-      task: 
-        regex: True
-        value: "(?<=task-)[A-Za-z0-9]+"
-      run: 
-        regex: True
-        value: "(?<=run-)[A-Za-z0-9]+"
-      desc: 
-        value: epi2t1w
-    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"
-
   - name: epi_sdc
     method: registration
     args:
       - field: bg_nii
-        value: ./*/*_bold/*_mc.nii.gz
+        value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/FieldMap/SBRef2PhaseTwo_gdc.nii.gz
       - field: fg_nii
-        value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRandFreesurferBBRbased/Scout_gdc_undistorted.nii.gz
+        value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/FieldMap/SBRef_dc.nii.gz
     bids_map:
-      ses: 
+      sub:
+        regex: True
+      ses:
         regex: True
         value: "(?<=ses-)[A-Za-z0-9]+"
-      task: 
+      task:
         regex: True
         value: "(?<=task-)[A-Za-z0-9]+"
-      run: 
+      run:
         regex: True
         value: "(?<=run-)[A-Za-z0-9]+"
-      desc: 
+      desc:
         value: episdc
-    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.nii.gz"
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.svg"
+
+    ### VOLUMETRIC FUNCTIONAL START ###
+  - name: epi_t1w_coreg
+    method: freesurfer_coreg
+    args:
+    - field: bg_nii
+      value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/Scout_gdc_undistorted2T1w.nii.gz
+    - field: fg_nii
+      value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/T1w_acpc_dc_restore_brain.nii.gz
+    - field: fs_dir
+      value: ./*/T1w/sub-*/
+    bids_map:
+      sub:
+        regex: True
+      ses:
+        regex: True
+        value: "(?<=ses-)[A-Za-z0-9]+"
+      task:
+        regex: True
+        value: "(?<=task-)[A-Za-z0-9]+"
+      run:
+        regex: True
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc:
+        value: epi2t1w
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.svg"

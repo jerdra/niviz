@@ -79,10 +79,8 @@ class IRegRPT(nrc.RegistrationRC):
         """
 
         # Need to 3Dify 4D images and re-orient to RAS
-        fi = _reorient_to_ras(
-            _make_3d_from_4d(nilearn.image.load_img(self.inputs.fg_nii)))
-        bi = _reorient_to_ras(
-            _make_3d_from_4d(nilearn.image.load_img(self.inputs.bg_nii)))
+        fi = _make_3d_from_4d(nilearn.image.load_img(self.inputs.fg_nii))
+        bi = _make_3d_from_4d(nilearn.image.load_img(self.inputs.bg_nii))
         self._fixed_image = fi
         self._moving_image = bi
 
@@ -130,7 +128,10 @@ class _ISegInputSpecRPT(nrc._SVGReportCapableInputSpec):
                                desc='Segmentation image of SVG',
                                mandatory=True)
 
-    mask_file = File(exists=True, resolve=True, desc='ROI Mask for mosaic')
+    mask_file = File(exists=True,
+                     resolve=True,
+                     desc='ROI Mask for mosaic',
+                     mandatory=False)
 
     masked = traits.Bool(False,
                          usedefault=True,
@@ -174,9 +175,9 @@ class ISegRPT(nrc.SegmentationRC):
             self.inputs.seg_files = [self.inputs.seg_files]
 
         # Set variables for `nrc.SegmentationRC`
-        self._anat_file = _reorient_to_ras(self.inputs.anat_file)
-        self._seg_files = [_reorient_to_ras for s in self.inputs.seg_files]
-        self._mask_file = _reorient_to_ras(self.inputs.mask_file) or None
+        self._anat_file = self.inputs.anat_file
+        self._seg_files = self.inputs.seg_files
+        self._mask_file = self.inputs.mask_file or None
         self._masked = self.inputs.masked
 
         # Propogate to superclass
@@ -241,8 +242,8 @@ class IFSCoregRPT(nrc.RegistrationRC):
 
         """
 
-        self._fixed_image = _reorient_to_ras(self.inputs.bg_nii)
-        self._moving_image = _reorient_to_ras(self.inputs.fg_nii)
+        self._fixed_image = self.inputs.bg_nii
+        self._moving_image = self.inputs.fg_nii
         self._contour = os.path.join(self.inputs.fs_dir, 'mri', 'ribbon.mgz')
 
         return super(IFSCoregRPT, self)._post_run_hook(runtime)
@@ -290,6 +291,7 @@ def _reorient_to_ras(img: Nifti1Image) -> Nifti1Image:
         img re-oriented to RAS
     '''
 
+    img = nilearn.image.load_img(img)
     ras_ornt = nib.orientations.axcodes2ornt(('R', 'A', 'S'))
     img_ornt = nib.orientations.axcodes2ornt(
         nib.orientations.aff2axcodes(img.affine))

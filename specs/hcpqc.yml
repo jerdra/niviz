@@ -39,7 +39,7 @@ filespecs:
       sub:
         regex: True
       desc:
-        value: t2wreg
+        value: t2wbiasfield
       modality:
         value: T2w
     out_path: "${sub}/anat/${sub}_${desc}.svg"
@@ -132,7 +132,7 @@ filespecs:
         value: "(?<=run-)[A-Za-z0-9]+"
       desc:
         value: episdc
-    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.svg"
+      out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
 
     ### VOLUMETRIC FUNCTIONAL START ###
   - name: epi_t1w_coreg
@@ -158,4 +158,4 @@ filespecs:
         value: "(?<=run-)[A-Za-z0-9]+"
       desc:
         value: epi2t1w
-    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}.svg"
+        out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"

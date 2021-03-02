@@ -1,0 +1,49 @@
+package: HCPPipelines
+sections:
+- name: "Pre-Freesurfer & Freesurfer"
+  reportlets:
+
+  - subtitle: T1w Bias field correction
+    caption: This panel shows bias-field correction of the template T1 image (if several T1w images were found). Successful bias correction should show uniform intensity throughout the white matter. Any inhomogeneities may manifest later in the pipeline as errors in the segmentation of grey matter/white matter tissue
+    bids: {datatype: anat, desc:t1wbiasfield}
+    static: false
+
+  - subtitle: T1w to MNI transformation
+    caption: The template T1 is transformed into MNI space using FNIRT after AC-PC alignment using a linear 6 DOF transformation.
+    bids: {datatype: anat, desc: t1w2mni}
+    static: false
+
+  - subtitle: Template-based Brain Extraction
+    caption: The MNI template brainmask is warped back into the T1 template (if using multiple T1s) space. This is used to mask the T1 image.
+
+  - subtitle: Freesurfer reconstruction
+    caption: Surfaces (white and pial) reconstructed with FreeSurfer, are overlaid on the participant's T1w template image
+    bids: {}
+
+  - subtitle: T2w Bias field correction
+    caption: This panel shows the bias-field correction of the template T2 image (if several T2w images were found).
+    bids: {datatype: anat, desc: t2wbiasfield}
+    static: false
+  
+  - subtitle: T2w Brain Mask
+    caption: The MNI template brainmask is warped back into the T2 template (if using multiple T2s) space.
+    bids: {datatype: anat, desc: t2wbrainmask}
+
+  - subtitle: T2w-T1w Co-Registration
+    caption: BBR Cross-Modal Registration is used to align the T1w and T2w images.
+    bids: {datatype: anat, desc: t1wt2wcoreg}
+    static: false
+
+- name: Functional
+  ordering: session,task,acquisition,ceagent,reconstruction,direction,run,echo
+  reportlets:
+
+  - subtitle: Susceptibility distortion correction
+    caption: Susceptibility distortion correction was performed using FSL TOPUP. The distorted Spin Echo scans are first aligned with a 6 DOF FLIRT registration to the distorted gradient echo EPI image. This registration is then concatenated with a TOPUP-estimated warp-field to undistort the gradient echo image. Spline interpolation is used.
+    bids: {datatype: func, desc: episdc, suffix: bold}
+    static: false
+  
+  - subtitle: Alignment of EPI to Anatomical MRI Data
+    caption: Registration of EPI to T1 data was done using an initial 6 DOF FLIRT initialization, then Freesurfer's BBRegister for fine adjustment.
+    bids: {datatype: func, desc: epi2t1w, suffix: bold}
+    static: false

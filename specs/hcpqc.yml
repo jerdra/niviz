@@ -26,7 +26,7 @@ filespecs:
         value: t1wbiasfield
       modality:
         value: T1w
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
 
   - name: t2w_biasfield
     method: registration
@@ -42,7 +42,7 @@ filespecs:
         value: t2wbiasfield
       modality:
         value: T2w
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T2w.svg"
 
   - name: t1w_mask
     method: segmentation
@@ -60,7 +60,7 @@ filespecs:
         value: t1wbrainmask
       modality:
         value: T1w
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
 
   - name: t2w_mask
     method: segmentation
@@ -78,7 +78,7 @@ filespecs:
         value: t2wbrainmask
       modality:
         value: T2w
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
 
 
   - name: t1w_t2w_coreg
@@ -93,7 +93,7 @@ filespecs:
         regex: True
       desc:
         value: t1wt2wcoreg
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
 
   - name: t1w2mni_reg
     method: registration
@@ -108,7 +108,7 @@ filespecs:
         regex: True
       desc:
         value: t1w2mni
-    out_path: "${sub}/anat/${sub}_${desc}.svg"
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
 
     ### VOLUMETRIC ANATOMICAL END ###
   - name: epi_sdc
@@ -132,7 +132,7 @@ filespecs:
         value: "(?<=run-)[A-Za-z0-9]+"
       desc:
         value: episdc
-      out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
 
     ### VOLUMETRIC FUNCTIONAL START ###
   - name: epi_t1w_coreg
@@ -158,4 +158,4 @@ filespecs:
         value: "(?<=run-)[A-Za-z0-9]+"
       desc:
         value: epi2t1w
-        out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"

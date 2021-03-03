@@ -1,37 +1,38 @@
-package: HCPPipelines
+package: hcppipelines
 sections:
 - name: "Pre-Freesurfer & Freesurfer"
   reportlets:
 
   - subtitle: T1w Bias field correction
     caption: This panel shows bias-field correction of the template T1 image (if several T1w images were found). Successful bias correction should show uniform intensity throughout the white matter. Any inhomogeneities may manifest later in the pipeline as errors in the segmentation of grey matter/white matter tissue
-    bids: {datatype: anat, desc:t1wbiasfield}
+    bids: {datatype: anat, desc: t1wbiasfield, suffix: T1w}
     static: false
 
   - subtitle: T1w to MNI transformation
     caption: The template T1 is transformed into MNI space using FNIRT after AC-PC alignment using a linear 6 DOF transformation.
-    bids: {datatype: anat, desc: t1w2mni}
+    bids: {datatype: anat, desc: t1w2mni, suffix: T1w}
     static: false
 
   - subtitle: Template-based Brain Extraction
     caption: The MNI template brainmask is warped back into the T1 template (if using multiple T1s) space. This is used to mask the T1 image.
+    bids: {datatype: anat, desc: t1wbrainmask, suffix: T1w}
 
-  - subtitle: Freesurfer reconstruction
-    caption: Surfaces (white and pial) reconstructed with FreeSurfer, are overlaid on the participant's T1w template image
-    bids: {}
-
+    #  - subtitle: Freesurfer reconstruction
+    #    caption: Surfaces (white and pial) reconstructed with FreeSurfer, are overlaid on the participant's T1w template image
+    #    bids: {}
+    
   - subtitle: T2w Bias field correction
-    caption: This panel shows the bias-field correction of the template T2 image (if several T2w images were found).
-    bids: {datatype: anat, desc: t2wbiasfield}
+    caption: This panel shows the bias-field correction of the template T2 image (if several T2w images were found)
+    bids: {datatype: anat, desc: t2wbiasfield, suffix: T2w}
     static: false
   
   - subtitle: T2w Brain Mask
     caption: The MNI template brainmask is warped back into the T2 template (if using multiple T2s) space.
-    bids: {datatype: anat, desc: t2wbrainmask}
+    bids: {datatype: anat, desc: t2wbrainmask, suffix: T2w}
 
   - subtitle: T2w-T1w Co-Registration
     caption: BBR Cross-Modal Registration is used to align the T1w and T2w images.
-    bids: {datatype: anat, desc: t1wt2wcoreg}
+    bids: {datatype: anat, desc: t1wt2wcoreg, suffix: T1w}
     static: false
 
 - name: Functional

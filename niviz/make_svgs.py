@@ -54,7 +54,7 @@ def cli():
         description='Command line interface to Niviz to generate '
         'QC images from pipeline outputs')
 
-    sub_parsers = argparse.add_subparsers(help='Niviz command modes')
+    sub_parsers = p.add_subparsers(help='Niviz command modes')
 
     parser_svg = sub_parsers.add_parser('svg', help='SVG Generation utility')
     parser_svg.add_argument('base_path',

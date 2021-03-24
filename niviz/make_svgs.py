@@ -26,22 +26,30 @@ def report_util(args):
     Report generation utility
     '''
 
-    from niworkflows.reports.core import generate_reports
+    from niworkflows.reports.core import run_reports
+    import yaml
+
+    with open(args.config, 'r') as f:
+        package_name = yaml.load(f)['package']
+    package_path = os.path.join(args.base_path, package_name)
 
     subject_list = args.subjects
     if args.subjects:
         subject_list = args.subjects
     else:
         subject_list = [
-            s for s in os.listdir(args.base_path)
+            s for s in os.listdir(package_path)
             if ('sub-' in s) and ('.html' not in s)
         ]
 
-    generate_reports(subject_list,
-                     args.output_dir,
-                     'NULL',
-                     config=args.config,
-                     work_dir=args.base_path)
+    [
+        run_reports(args.output_dir,
+                    s,
+                    'NULL',
+                    config=args.config,
+                    reportlets_dir=args.base_path) for s in subject_list
+    ]
+
     return
 
 

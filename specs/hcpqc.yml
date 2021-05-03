@@ -1,0 +1,161 @@
+
+# This YAML file describes a mapping from the HCP-Pipelines YAML structure into a BIDS-derivatives like specification.  A YAML-based parser `https://github.com/tigrlab/niviz/config.py` can then map these value to sets of BIDS entities
+
+global:
+  bids_map:
+    sub:
+      value: "(?<=sub-)[A-Za-z0-9]+"
+  bids_hierarchy: ["sub", "ses", "task", "run"]
+  env:
+    FSL_STANDARDS: "$FSLDIR/data/standard"
+
+filespecs:
+
+### VOLUMETRIC ANATOMICAL START ###
+  - name: t1w_biasfield
+    method: registration
+    args:
+      - field: bg_nii
+        value: ./*/T1w/T1w_acpc_dc.nii.gz
+      - field: fg_nii
+        value: ./*/T1w/T1w_acpc_dc_restore.nii.gz
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t1wbiasfield
+      modality:
+        value: T1w
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+
+  - name: t2w_biasfield
+    method: registration
+    args:
+      - field: bg_nii
+        value: ./*/T1w/T2w_acpc_dc.nii.gz
+      - field: fg_nii
+        value: ./*/T1w/T2w_acpc_dc_restore.nii.gz
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t2wbiasfield
+      modality:
+        value: T2w
+    out_path: "${sub}/anat/${sub}_${desc}_T2w.svg"
+
+  - name: t1w_mask
+    method: segmentation
+    args:
+      - field: anat_file
+        value: ./*/T1w/T1w_acpc_dc.nii.gz
+      - field: seg_files
+        value: ./*/T1w/T1w_acpc_brain_mask.nii.gz
+      - field: masked
+        value: true
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t1wbrainmask
+      modality:
+        value: T1w
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+
+  - name: t2w_mask
+    method: segmentation
+    args:
+      - field: anat_file
+        value: ./*/T1w/T2w_acpc_dc.nii.gz
+      - field: seg_files
+        value: ./*/T1w/T1w_acpc_brain_mask.nii.gz
+      - field: masked
+        value: true
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t2wbrainmask
+      modality:
+        value: T2w
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+
+
+  - name: t1w_t2w_coreg
+    method: registration
+    args:
+      - field: bg_nii
+        value: ./*/T1w/T1w_acpc_dc.nii.gz
+      - field: fg_nii
+        value: ./*/T1w/T2w_acpc_dc.nii.gz
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t1wt2wcoreg
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+
+  - name: t1w2mni_reg
+    method: registration
+    args:
+    - field: bg_nii
+      value: ./*/MNINonLinear/T1w.nii.gz
+    - field: fg_nii
+      value: "${FSL_STANDARDS}/MNI152_T1_2mm.nii.gz"
+      no_bids: True
+    bids_map:
+      sub:
+        regex: True
+      desc:
+        value: t1w2mni
+    out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+
+    ### VOLUMETRIC ANATOMICAL END ###
+  - name: epi_sdc
+    method: registration
+    args:
+      - field: bg_nii
+        value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/FieldMap/SBRef2PhaseTwo_gdc.nii.gz
+      - field: fg_nii
+        value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/FieldMap/SBRef_dc.nii.gz
+    bids_map:
+      sub:
+        regex: True
+      ses:
+        regex: True
+        value: "(?<=ses-)[A-Za-z0-9]+"
+      task:
+        regex: True
+        value: "(?<=task-)[A-Za-z0-9]+"
+      run:
+        regex: True
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc:
+        value: episdc
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
+
+    ### VOLUMETRIC FUNCTIONAL START ###
+  - name: epi_t1w_coreg
+    method: freesurfer_coreg
+    args:
+    - field: bg_nii
+      value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/Scout_gdc_undistorted2T1w.nii.gz
+    - field: fg_nii
+      value: ./*/*_bold/DistortionCorrectionAndEPIToT1wReg_FLIRTBBRAndFreeSurferBBRbased/T1w_acpc_dc_restore_brain.nii.gz
+    - field: fs_dir
+      value: ./*/T1w/sub-*/
+    bids_map:
+      sub:
+        regex: True
+      ses:
+        regex: True
+        value: "(?<=ses-)[A-Za-z0-9]+"
+      task:
+        regex: True
+        value: "(?<=task-)[A-Za-z0-9]+"
+      run:
+        regex: True
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc:
+        value: epi2t1w
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"

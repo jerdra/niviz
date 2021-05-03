@@ -1,0 +1,5 @@
+*__pycache__
+docs/build
+stubs
+package-lock.json
+*egg-info*

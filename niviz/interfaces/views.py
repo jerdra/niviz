@@ -9,11 +9,14 @@ if TYPE_CHECKING:
     from nibael.nifti1 import Nifti1Image
 
 import niworkflows.interfaces.report_base as nrc
+from niworkflows.viz.utils import cuts_from_bbox
 from nipype.interfaces.base import File, traits, InputMultiPath, Directory
 from nipype.interfaces.mixins import reporting
 
 import nilearn.image
 import nibabel as nib
+import numpy as np
+import trimesh
 
 from ..node_factory import register_interface
 """
@@ -304,3 +307,143 @@ def _run_imports() -> None:
     register_interface(IRegRPT, 'registration')
     register_interface(ISegRPT, 'segmentation')
     register_interface(IFSCoregRPT, 'freesurfer_coreg')
+    register_interface(ISurfVolRPT, 'surface_coreg')
+
+class _ISurfStructInputSpecRPT(nrc._SVGReportCapableInputSpec):
+    '''
+    Input spec for reports coregistering surface and volume images
+
+    '''
+    bg_nii = File(exists=True,
+                  usedefault=False,
+                  resolve=True,
+                  desc='Background NIFTI for SVG',
+                  mandatory=True)
+
+    fg_nii = File(exists=True,
+                  usedefault=False,
+                  resolve=True,
+                  desc='Foreground NIFTI for SVG'
+                  )
+
+    fs_dir = Directory(exists=True,
+                       usedefault=False,
+                       resolve=True,
+                       desc='Subject freesurfer directory',
+                       mandatory=True)
+
+
+class _ISurfStructOutSpecRPT(reporting.ReportCapableOutputSpec)
+    pass
+
+
+def gifti_get_mesh(gifti):
+    '''
+    Extract vertices and triangles from GIFTI surf.gii
+    file
+    
+    Arguments:
+        gifti (GiftiImage): Input GiftiImage
+    '''
+    
+    v, t = gifti.agg_data(('pointset','triangle'))
+    return v.copy(), t.copy()
+
+
+def gifti_get_full_brain(l, r):
+    '''
+    Construct a full brain mesh by joining
+    both hemispheres
+    
+    Arguments:
+        l: Left hemisphere GiftiImage
+        r: Right hemisphere GiftiImage
+    '''
+    l_vert, l_trig = gifti_get_mesh(l)
+    r_vert, r_trig = gifti_get_mesh(r)
+    
+    offset = l_trig.max() + 1
+    r_trig += offset
+    
+    verts = np.vstack((l_vert, r_vert))
+    trigs = np.vstack((l_trig, r_trig))
+    
+    return (verts, trigs, offset)
+
+
+class SurfVolRC(reporting.ReportCapableInterface):
+    '''
+    Abstract mixin for surface-volume coregistered images
+    '''
+    pass
+
+
+class ISurfVolRPT(SurfVolRC):
+	'''
+	Report interface for co-registered surface/volumetric images 
+	'''
+	input_spec = _ISurfVolInputSpecRPT
+    output_spec = _ISurfVolOutputSpecRPT
+    volname = {
+        "T1w": "T1w_acpc_dc.nii.gz",
+        "MNINonLinear": "T1w.nii.gz"
+    }
+
+	shortname = {
+        "Native": 'native',
+        "fsaverage_LR32k": "32k_fs_LR",
+        "": "164k_fs_LR"
+    }	
+
+    def _post_run_hook(self, runtime):
+        outputs = self.aggregate_outputs(runtime=runtime)
+        
+        self._bg_nii = self.inputs.bg_nii
+        self._fg_nii = self.inputs.fg_nii or None
+        self._fs_dir = self.inputs.fs_dir
+        self._reg_space = self.inputs.reg_space or 'T1w'
+        self._surf_space = self.inputs.surf_space or 'fsaverage_LR32k'
+        self._vol_name = volname[self._reg_space]
+
+        # Propogate to superclass
+        return super(ISurfSegRPT, self)._post_run_hook(runtime)
+
+    def _run_interface(self, runtime):
+        return runtime
+  
+    def _generate_report(self):
+        '''Make a composite for co-registration of surface and volume images'''
+        
+  	    l_surf = nib.load(
+  	    			os.path.join(
+	          		      self._fs_dir, self._reg_space, self._surf_space,
+	    		  		  f'{sub}.L.pial.{shortname[self._surf_space]}.surf.gii'))			  		
+  	    r_surf = nib.load(
+                    os.path.join(
+    		  		      self._fs_dir, self._reg_space, self._surf_space,
+	    		  		  f'{sub}.R.pial.{shortname[self._surf_space]}.surf.gii'))			  		
+        vol_img = nib.load( 
+                      os.path.join( self._fs_dir, self._reg_space, self._vol_name))
+        
+        l_verts, l_trigs = gifti_get_mesh(l_surf)
+        r_verts, r_trigs = gifti_get_mesh(r_surf)
+        verts, trigs, offset = gifti_get_full_brain(l_surf, r_surf)
+        
+        mesh = trimesh.Trimesh(vertices=verts, faces=trigs)
+        mask_nii = nimg.threshold_img(vol_img, 1e-3)
+        cuts = cuts_from_bbox(mask_nii, cuts=self._ncuts)
+
+        sections = mesh.section_multiplane(
+                        plane_normal=[0,0,1],
+                        plane_origin=[0,0,0],
+                        heights=cuts['z'])
+          
+  	    zh = nplot.plot_anat(vol_img, display_mode='z', cut_coords=cuts['z'])
+  	    
+  	    for z, s in zip(cuts['z'], sections):
+  	        ax = zh.axes[z].ax
+  	        if s:
+  	            for segs in s.discrete:
+  	                ax.plot(*segs.T, color='r', linewidth=0.5) 
+
+        zh.savefig(self._out_report)

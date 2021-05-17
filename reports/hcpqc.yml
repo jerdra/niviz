@@ -20,12 +20,12 @@ sections:
     #  - subtitle: Freesurfer reconstruction
     #    caption: Surfaces (white and pial) reconstructed with FreeSurfer, are overlaid on the participant's T1w template image
     #    bids: {}
-    
+
   - subtitle: T2w Bias field correction
     caption: This panel shows the bias-field correction of the template T2 image (if several T2w images were found)
     bids: {datatype: anat, desc: t2wbiasfield, suffix: T2w}
     static: false
-  
+
   - subtitle: T2w Brain Mask
     caption: The MNI template brainmask is warped back into the T2 template (if using multiple T2s) space.
     bids: {datatype: anat, desc: t2wbrainmask, suffix: T2w}
@@ -43,8 +43,13 @@ sections:
     caption: Susceptibility distortion correction was performed using FSL TOPUP. The distorted Spin Echo scans are first aligned with a 6 DOF FLIRT registration to the distorted gradient echo EPI image. This registration is then concatenated with a TOPUP-estimated warp-field to undistort the gradient echo image. Spline interpolation is used.
     bids: {datatype: func, desc: episdc, suffix: bold}
     static: false
-  
+
   - subtitle: Alignment of EPI to Anatomical MRI Data
     caption: Registration of EPI to T1 data was done using an initial 6 DOF FLIRT initialization, then Freesurfer's BBRegister for fine adjustment.
     bids: {datatype: func, desc: epi2t1w, suffix: bold}
     static: false
+
+  - subtitle: HCP Surface alignment to EPI
+    caption: fs_LR_32k pial surface are overlaid over the MNI transformed EPI images. Any mismatch will result in inclusion of CSF or exclusion of EPI data in the CIFTI time-series file.
+    bids: {datatype: func, desc: epi32k, suffix: bold}
+    static: true

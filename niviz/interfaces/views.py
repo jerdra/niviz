@@ -383,7 +383,7 @@ class SurfVolRC(reporting.ReportCapableInterface):
 
 class ISurfVolRPT(SurfVolRC):
     '''
-    Report interface for co-registered surface/volumetric images 
+    Report interface for co-registered surface/volumetric images
     '''
     input_spec = _ISurfVolInputSpecRPT
     output_spec = _ISurfVolOutputSpecRPT

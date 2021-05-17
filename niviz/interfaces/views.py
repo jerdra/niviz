@@ -345,7 +345,6 @@ def gifti_get_mesh(gifti):
     '''
     Extract vertices and triangles from GIFTI surf.gii
     file
-    
     Arguments:
         gifti (GiftiImage): Input GiftiImage
     '''

@@ -353,17 +353,17 @@ def gifti_get_mesh(gifti):
     return v.copy(), t.copy()
 
 
-def gifti_get_full_brain(l, r):
+def gifti_get_full_brain(l_gifti, r_gifti):
     '''
     Construct a full brain mesh by joining
     both hemispheres
-    
+
     Arguments:
-        l: Left hemisphere GiftiImage
-        r: Right hemisphere GiftiImage
+        l_gifti: Left hemisphere GiftiImage
+        r_gifti: Right hemisphere GiftiImage
     '''
-    l_vert, l_trig = gifti_get_mesh(l)
-    r_vert, r_trig = gifti_get_mesh(r)
+    l_vert, l_trig = gifti_get_mesh(l_gifti)
+    r_vert, r_trig = gifti_get_mesh(r_gifti)
 
     offset = l_trig.max() + 1
     r_trig += offset

@@ -1,6 +1,7 @@
 
 # This YAML file describes a mapping from the HCP-Pipelines YAML structure into a BIDS-derivatives like specification.  A YAML-based parser `https://github.com/tigrlab/niviz/config.py` can then map these value to sets of BIDS entities
 
+package: hcppipelines
 global:
   bids_map:
     sub:
@@ -160,6 +161,32 @@ filespecs:
         value: epi2t1w
     out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
 
+<<<<<<< HEAD
+  - name: epi_mni_overlay_32k
+    method: surface_coreg
+    args:
+      - field: bg_nii
+        value: ./*/MNINonLinear/Results/*/*bold.nii.gz
+      - field: surf_l
+        value: ./*/MNINonLinear/fsaverage_LR32k/*.L.pial.32k_fs_LR.surf.gii
+      - field: surf_r
+        value: ./*/MNINonLinear/fsaverage_LR32k/*.R.pial.32k_fs_LR.surf.gii
+    bids_map:
+      sub:
+        regex: True
+      ses:
+        regex: True
+        value: "(?<=ses-)[A-Za-z0-9]+"
+      task:
+        regex: True
+        value: "(?<=task-)[A-Za-z0-9]+"
+      run:
+        regex: True
+        value: "(?<=run-)[A-Za-z0-9]+"
+      desc:
+        value: epi32k
+    out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
+=======
 
 ## SURFACE ANATOMICAL START ##
   - name: t1w_surface
@@ -201,3 +228,4 @@ filespecs:
       desc:
         value: t1wmnisurf
     out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
+>>>>>>> 080e089ba66d3a33394e3d3945fe7630aaecae9e

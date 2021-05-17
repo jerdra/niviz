@@ -306,14 +306,6 @@ def _reorient_to_ras(img: Nifti1Image) -> Nifti1Image:
     return img.as_reoriented(img2ref)
 
 
-# Register interfaces with adapter-factory
-def _run_imports() -> None:
-    register_interface(IRegRPT, 'registration')
-    register_interface(ISegRPT, 'segmentation')
-    register_interface(IFSCoregRPT, 'freesurfer_coreg')
-    register_interface(ISurfVolRPT, 'surface_coreg')
-
-
 class _ISurfVolInputSpecRPT(nrc._SVGReportCapableInputSpec):
     '''
     Input spec for reports coregistering surface and volume images
@@ -459,3 +451,11 @@ class ISurfVolRPT(SurfVolRC):
             zh.add_overlay(fg_img, cmap=cmapviridis)
 
         zh.savefig(self._out_report)
+
+
+# Register interfaces with adapter-factory
+def _run_imports() -> None:
+    register_interface(IRegRPT, 'registration')
+    register_interface(ISegRPT, 'segmentation')
+    register_interface(IFSCoregRPT, 'freesurfer_coreg')
+    register_interface(ISurfVolRPT, 'surface_coreg')

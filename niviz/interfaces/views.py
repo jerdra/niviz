@@ -22,7 +22,7 @@ import nibabel as nib
 import numpy as np
 import trimesh
 
-# from ..node_factory import register_interface
+from ..node_factory import register_interface
 
 
 """
@@ -414,9 +414,6 @@ class ISurfVolRPT(SurfVolRC):
     def _run_interface(self, runtime):
         return runtime
  
-    def get_shortname(self):
-        return self.shortname
-
     def _generate_report(self):
         '''Make a composite for co-registration of surface and volume images'''
         
@@ -427,8 +424,6 @@ class ISurfVolRPT(SurfVolRC):
         if vol_img.ndim==4:
             vol_img = vol_img.slicer[:,:,:,0]
         
-        l_verts, l_trigs = gifti_get_mesh(l_surf)
-        r_verts, r_trigs = gifti_get_mesh(r_surf)
         verts, trigs, offset = gifti_get_full_brain(l_surf, r_surf)
         
         mesh = trimesh.Trimesh(vertices=verts, faces=trigs)

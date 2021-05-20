@@ -23,6 +23,7 @@ import numpy as np
 import trimesh
 
 from ..node_factory import register_interface
+import niviz.surface
 """
 ReportCapable concrete classes for generating reports as side-effects
 """
@@ -341,39 +342,6 @@ class _ISurfVolOutputSpecRPT(reporting.ReportCapableOutputSpec):
     pass
 
 
-def gifti_get_mesh(gifti):
-    '''
-    Extract vertices and triangles from GIFTI surf.gii
-    file
-    Arguments:
-        gifti (GiftiImage): Input GiftiImage
-    '''
-
-    v, t = gifti.agg_data(('pointset', 'triangle'))
-    return v.copy(), t.copy()
-
-
-def gifti_get_full_brain(l_gifti, r_gifti):
-    '''
-    Construct a full brain mesh by joining
-    both hemispheres
-
-    Arguments:
-        l_gifti: Left hemisphere GiftiImage
-        r_gifti: Right hemisphere GiftiImage
-    '''
-    l_vert, l_trig = gifti_get_mesh(l_gifti)
-    r_vert, r_trig = gifti_get_mesh(r_gifti)
-
-    offset = l_trig.max() + 1
-    r_trig += offset
-
-    verts = np.vstack((l_vert, r_vert))
-    trigs = np.vstack((l_trig, r_trig))
-
-    return (verts, trigs, offset)
-
-
 class SurfVolRC(reporting.ReportCapableInterface):
     '''
     Abstract mixin for surface-volume coregistered images
@@ -413,7 +381,8 @@ class ISurfVolRPT(SurfVolRC):
         if vol_img.ndim == 4:
             vol_img = vol_img.slicer[:, :, :, 0]
 
-        verts, trigs, offset = gifti_get_full_brain(l_surf, r_surf)
+        verts, trigs, offset = niviz.surface.gifti_get_full_brain_mesh(
+            l_surf, r_surf)
 
         mesh = trimesh.Trimesh(vertices=verts, faces=trigs)
         mask_nii = nilearn.image.threshold_img(vol_img, 1e-3)

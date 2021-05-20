@@ -74,7 +74,8 @@ def map_cifti_to_giftis(l_gifti, r_gifti, cifti):
     # Validate and obtain GIFTI
     for g in [l_gifti, r_gifti]:
         contains_pointset = any([
-            True for d in g.darrays if d.intent == INTENT.NIFTI_INTENT_POINTSET
+            True for d in g.darrays
+            if d.intent == INTENT.NIFTI_INTENT_POINTSET.value
         ])
         if not contains_pointset:
             raise ValueError(f"{g.get_filename()} is not a surface mesh file!")

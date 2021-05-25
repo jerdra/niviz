@@ -2,6 +2,17 @@ from __future__ import annotations
 
 import os
 import argparse
+import yaml
+
+
+def _get_package_name(config):
+    '''
+    Get package name from YAML specification or report file
+    '''
+
+    with open(config, 'r') as f:
+        package_name = yaml.load(f)['package']
+    return package_name
 
 
 def svg_util(args):
@@ -13,11 +24,9 @@ def svg_util(args):
     import niviz.config
 
     arg_specs = niviz.config.fetch_data(args.spec_file, args.base_path)
+    out_path = os.path.join(args.out_path, _get_package_name(args.spec_file))
 
-    [
-        niviz.node_factory.get_interface(a, args.out_path).run()
-        for a in arg_specs
-    ]
+    [niviz.node_factory.get_interface(a, out_path).run() for a in arg_specs]
     return
 
 
@@ -27,11 +36,8 @@ def report_util(args):
     '''
 
     from niworkflows.reports.core import run_reports
-    import yaml
 
-    with open(args.config, 'r') as f:
-        package_name = yaml.load(f)['package']
-    package_path = os.path.join(args.base_path, package_name)
+    package_path = os.path.join(args.base_path, _get_package_name(args.config))
 
     subject_list = args.subjects
     if args.subjects:

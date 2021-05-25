@@ -35,6 +35,11 @@ sections:
     bids: {datatype: anat, desc: t1wt2wcoreg, suffix: T1w}
     static: false
 
+  - subtitle: Myelin Map
+    caption: T1w/T2w ratio is computed and displayed on fsaverage_LR32k surface.
+    bids: {datatype: anat, desc: myelinmap, suffix: T1w}
+    static: true
+
 - name: Functional
   ordering: session,task,acquisition,ceagent,reconstruction,direction,run,echo
   reportlets:

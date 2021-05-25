@@ -5,9 +5,14 @@ Provides utility functions to access Surface data
 import numpy as np
 from enum import Enum
 
+CIFTI_GIFTI_MAP = {
+    'CIFTI_STRUCTURE_CORTEX_LEFT': 'left',
+    'CIFTI_STRUCTURE_CORTEX_RIGHT': 'right',
+    'CortexLeft': 'left',
+    'CortexRight': 'right'
+}
 
-class INTENT(Enum):
-    NIFTI_INTENT_POINTSET = 1008
+NIFTI_INTENT_POINTSET = 1008
 
 
 def gifti_get_mesh(gifti):
@@ -43,14 +48,13 @@ def gifti_get_full_brain_mesh(l_gifti, r_gifti):
     return (verts, trigs, offset)
 
 
-def map_cifti_to_giftis(l_gifti, r_gifti, cifti):
+def map_cifti_to_gifti(gifti, cifti):
     '''
     Maps cifti data-array to gifti vertices to account
     for missing indices (i.e removal of medial wall)
 
     Arguments:
-        l_gifti:    Left hemisphere GIFTI mesh
-        r_gifti:    Right hemisphere GIFTI mesh
+        gifti:      GIFTI surface mesh
         cifti:      CIFTI file to map [Series x BrainModel]
 
     Returns:
@@ -61,34 +65,59 @@ def map_cifti_to_giftis(l_gifti, r_gifti, cifti):
     '''
 
     # Validate and obtain CIFTI indices
-    cifti_vertices = None
+    brain_models = None
     for mi in cifti.header.mapped_indices:
         map_type = cifti.header.get_index_map(mi).indices_map_to_data_type
         if map_type == "CIFTI_INDEX_TYPE_BRAIN_MODELS":
-            cifti_vertices = cifti.header.get_axis(mi).vertex
+            brain_models = cifti.header.get_axis(mi)
 
     # TODO: Implement logging + proper error
-    if cifti_vertices is None:
+    if brain_models is None:
         raise ValueError("CIFTI object does not contain BrainModelAxis!")
 
     # Validate and obtain GIFTI
-    for g in [l_gifti, r_gifti]:
-        contains_pointset = any([
-            True for d in g.darrays
-            if d.intent == INTENT.NIFTI_INTENT_POINTSET.value
-        ])
-        if not contains_pointset:
-            raise ValueError(f"{g.get_filename()} is not a surface mesh file!")
+    gifti_struct = None
+    for d in gifti.darrays:
+        if d.intent == NIFTI_INTENT_POINTSET:
+            try:
+                gifti_struct = d.metadata['AnatomicalStructurePrimary']
+            except KeyError:
+                raise ValueError(
+                    f"{gifti.get_filename()} is not a surface mesh file!")
+
+    if gifti_struct is None:
+        raise ValueError(
+            f"{gifti.get_filename()} contains no coordinate information!")
+
+    # Now we need to map the coordinate of CIFTI onto GIFTI
+    match_key = CIFTI_GIFTI_MAP[gifti_struct]
+    matched_bm = None
+    for struct, sl, bma in brain_models.iter_structures():
+        if CIFTI_GIFTI_MAP[struct] == match_key:
+            matched_bm = (struct, sl, bma)
+            break
+
+    if matched_bm is None:
+        raise ValueError(
+            "No matching structures between CIFTI and GIFTI file!")
+
+    _, matched_verts, brain_model_ax = matched_bm
+    cifti_verts = brain_model_ax.vertex
 
     # Extract vertices from GIFTI
-    verts, trigs, _ = gifti_get_full_brain_mesh(l_gifti, r_gifti)
+    verts, trigs = gifti_get_mesh(gifti)
 
     # Map CIFTI vertices to GIFTI, setting non-filled values to NaN
     mapping_array = np.empty((cifti.dataobj.shape[0], verts.shape[0]),
                              dtype=cifti.dataobj.dtype)
+
     # Write NaNs
     mapping_array[:] = np.nan
-    mapping_array[:, cifti_vertices] = cifti.get_fdata()
+    try:
+        mapping_array[:, cifti_verts] = cifti.get_fdata()[:, matched_verts]
+    except IndexError:
+        raise ValueError("Cifti file contains vertices that are not indexed "
+                         "by the provided gifti file!")
 
     # Return mapping array
     return verts, trigs, mapping_array

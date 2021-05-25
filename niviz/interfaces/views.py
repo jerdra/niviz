@@ -4,12 +4,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import os
+from collections import namedtuple
 
 if TYPE_CHECKING:
-    from nibael.nifti1 import Nifti1Image
+    from nibabel.nifti1 import Nifti1Image
 
 import niworkflows.interfaces.report_base as nrc
-from niworkflows.viz.utils import cuts_from_bbox
 from nipype.interfaces.base import File, traits, InputMultiPath, Directory
 from traits.trait_types import BaseInt
 from nipype.interfaces.mixins import reporting
@@ -20,7 +20,6 @@ import nilearn.image
 import nilearn.plotting as nplot
 import nibabel as nib
 import numpy as np
-import trimesh
 
 from ..node_factory import register_interface
 import niviz.surface
@@ -272,41 +271,6 @@ class IFSCoregRPT(nrc.RegistrationRC):
         return runtime
 
 
-def _make_3d_from_4d(nii: Nifti1Image, ind: int = 0) -> Nifti1Image:
-    '''
-    Convert 4D Image into 3D one by pulling a single volume.
-    Performs identity mapping if input image is 3D
-
-    Args:
-        nii: Input image
-        ind: Index to pull from 4D image
-    '''
-
-    if len(nii.shape) < 4:
-        return nii
-
-    return nii.slicer[:, :, :, ind]
-
-
-def _reorient_to_ras(img: Nifti1Image) -> Nifti1Image:
-    '''
-    Re-orient image to RAS
-
-    Args:
-        img: Image to re-orient to match ref image
-
-    Returns:
-        img re-oriented to RAS
-    '''
-
-    img = nilearn.image.load_img(img)
-    ras_ornt = nib.orientations.axcodes2ornt(('R', 'A', 'S'))
-    img_ornt = nib.orientations.axcodes2ornt(
-        nib.orientations.aff2axcodes(img.affine))
-    img2ref = nib.orientations.ornt_transform(img_ornt, ras_ornt)
-    return img.as_reoriented(img2ref)
-
-
 class _ISurfVolInputSpecRPT(nrc._SVGReportCapableInputSpec):
     '''
     Input spec for reports coregistering surface and volume images
@@ -357,7 +321,6 @@ class ISurfVolRPT(SurfVolRC):
     output_spec = _ISurfVolOutputSpecRPT
 
     def _post_run_hook(self, runtime):
-        outputs = self.aggregate_outputs(runtime=runtime)
 
         self._bg_nii = self.inputs.bg_nii
         self._fg_nii = self.inputs.fg_nii or None
@@ -373,6 +336,9 @@ class ISurfVolRPT(SurfVolRC):
 
     def _generate_report(self):
         '''Make a composite for co-registration of surface and volume images'''
+
+        import trimesh
+        from niworkflows.viz.utils import cuts_from_bbox
 
         l_surf = nib.load(self._surf_l)
         r_surf = nib.load(self._surf_r)
@@ -421,9 +387,223 @@ class ISurfVolRPT(SurfVolRC):
         zh.savefig(self._out_report)
 
 
+class _ISurfMapInputSpecRPT(nrc._SVGReportCapableInputSpec):
+
+    left_surf = File(exists=True,
+                     usedefault=False,
+                     resolve=True,
+                     desc="Left surface mesh",
+                     mandatory=True)
+
+    right_surf = File(exists=True,
+                      usedefault=False,
+                      resolve=True,
+                      desc="Right surface mesh",
+                      mandatory=True)
+
+    bg_map = File(exists=True,
+                  usedefault=False,
+                  resolve=True,
+                  desc="Cifti file containing background map data "
+                  "(usually sulci depth)",
+                  mandatory=False)
+
+    cifti_map = File(exists=True,
+                     usedefault=False,
+                     resolve=True,
+                     desc="Cifti file containing surface map data",
+                     mandatory=False)
+
+    colormap = traits.String("magma",
+                             usedefault=True,
+                             desc="Colormap to use to plot mapping",
+                             mandatory=False)
+
+    views = traits.List(["lateral", "medial"],
+                        usedefault=True,
+                        desc="Views to display",
+                        inner_traits=traits.Enum(
+                            values=["lateral", "medial", "dorsal", "ventral"]))
+    darkness = traits.BaseInt(
+        0.3,
+        usedefault=True,
+        desc="Multiplicative factor of bg_img onto foreground map",
+        mandatory=False)
+    visualize_all_maps = traits.Bool(False,
+                                     usedefault=True,
+                                     desc="Visualize all mappings in "
+                                     "mapping file, if false will visualize "
+                                     "only the first mapping")
+
+
+class _ISurfMapOutputSpecRPT(reporting.ReportCapableOutputSpec):
+    pass
+
+
+class ISurfMapRPT(reporting.ReportCapableInterface):
+    '''
+    Class for generating Niviz surface visualizations given
+    a mesh and surface mapping
+    '''
+
+    input_spec = _ISurfMapInputSpecRPT
+    output_spec = _ISurfMapOutputSpecRPT
+
+    def _run_interface(self, runtime: Bunch) -> Bunch:
+        """Instantiation of abstract method, does nothing
+
+        Args:
+            runtime: Nipype runtime object
+
+        Returns:
+            runtime: Resultant runtime object (unchanged)
+
+        """
+        return runtime
+
+    def _post_run_hook(self, runtime: Bunch) -> Bunch:
+        self._left_surf = self.inputs.left_surf
+        self._right_surf = self.inputs.right_surf
+        self._cifti_map = self.inputs.cifti_map
+        self._bg_map = self.inputs.bg_map
+        self._views = self.inputs.views
+        self._colormap = self.inputs.colormap
+        self._visualize_all_maps = self.inputs.visualize_all_maps
+        self._darkness = self.inputs.darkness
+
+        return super(ISurfMapRPT, self)._post_run_hook(runtime)
+
+    def _generate_report(self):
+        """Side effect function of ISurfMapRPT
+
+        Generate a surface visualization
+
+        Args:
+            runtime: Nipype runtime object
+
+        Returns:
+            runtime: Resultant runtime object
+        """
+
+        from mpl_toolkits import mplot3d  # noqa: F401
+
+        Hemispheres = namedtuple("Hemispheres", ["left", "right"])
+
+        l_surf = nib.load(self._left_surf)
+        r_surf = nib.load(self._right_surf)
+        num_views = len(self._views)
+        num_maps = 1
+
+        if self._cifti_map:
+            cifti_map = nib.load(self._cifti_map)
+            lv, lt, lm = niviz.surface.map_cifti_to_gifti(l_surf, cifti_map)
+            rv, rt, rm = niviz.surface.map_cifti_to_gifti(r_surf, cifti_map)
+
+            if not self._visualize_all_maps:
+                lm = lm[0, :]
+                rm = rm[0, :]
+            else:
+                num_maps = lm.shape[0]
+
+            map_hemi = Hemispheres(left=(lv, lt, lm), right=(rv, rt, rm))
+        else:
+            # Use vertices and triangles from Mesh
+            lv, lt = niviz.surface.gifti_get_mesh(l_surf)
+            rv, rt = niviz.surface.gifti_get_mesh(r_surf)
+            map_hemi = Hemispheres(left=(lv, lt, None), right=(lv, lt, None))
+
+        if self._bg_map:
+            bg_map = nib.load(self._bg_map)
+            _, _, l_bg = niviz.surface.map_cifti_to_gifti(l_surf, bg_map)
+            _, _, r_bg = niviz.surface.map_cifti_to_gifti(r_surf, bg_map)
+            bg_hemi = Hemispheres(left=l_bg, right=r_bg)
+        else:
+            bg_hemi = Hemispheres(left=None, right=None)
+
+        # Construct figure
+        w, h = plt.figaspect(num_maps / (num_views * 2))
+        fig, axs = plt.subplots(num_maps,
+                                num_views * 2,
+                                subplot_kw={'projection': '3d'},
+                                figsize=(w, h))
+        fig.set_facecolor("black")
+        fig.tight_layout()
+        for i, a in enumerate(axs.flat):
+            a.set_facecolor("black")
+
+            # Get row (map)
+            i_map = i // num_views
+
+            # Get column
+            i_view = (i - i_map) % (num_views * 2)
+            view = self._views[i_view // 2]
+
+            # Get hemisphere
+            hemi = i_view % 2
+            if hemi == 0:
+                display_map = map_hemi.left
+                display_bg = bg_hemi.left
+                hemi = "left"
+            else:
+                display_map = map_hemi.right
+                display_bg = bg_hemi.right
+                hemi = "right"
+
+            # Plot
+            v, t, m = display_map
+            nplot.plot_surf([v, t],
+                            surf_map=m,
+                            bg_map=display_bg,
+                            cmap=self._colormap,
+                            axes=a,
+                            hemi=hemi,
+                            view=view,
+                            bg_on_data=True,
+                            darkness=self._darkness)
+
+        plt.draw()
+        plt.savefig(self._out_report)
+
+
+def _make_3d_from_4d(nii: Nifti1Image, ind: int = 0) -> Nifti1Image:
+    '''
+    Convert 4D Image into 3D one by pulling a single volume.
+    Performs identity mapping if input image is 3D
+
+    Args:
+        nii: Input image
+        ind: Index to pull from 4D image
+    '''
+
+    if len(nii.shape) < 4:
+        return nii
+
+    return nii.slicer[:, :, :, ind]
+
+
+def _reorient_to_ras(img: Nifti1Image) -> Nifti1Image:
+    '''
+    Re-orient image to RAS
+
+    Args:
+        img: Image to re-orient to match ref image
+
+    Returns:
+        img re-oriented to RAS
+    '''
+
+    img = nilearn.image.load_img(img)
+    ras_ornt = nib.orientations.axcodes2ornt(('R', 'A', 'S'))
+    img_ornt = nib.orientations.axcodes2ornt(
+        nib.orientations.aff2axcodes(img.affine))
+    img2ref = nib.orientations.ornt_transform(img_ornt, ras_ornt)
+    return img.as_reoriented(img2ref)
+
+
 # Register interfaces with adapter-factory
 def _run_imports() -> None:
     register_interface(IRegRPT, 'registration')
     register_interface(ISegRPT, 'segmentation')
     register_interface(IFSCoregRPT, 'freesurfer_coreg')
     register_interface(ISurfVolRPT, 'surface_coreg')
+    register_interface(ISurfMapRPT, 'surface')

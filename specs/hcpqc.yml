@@ -11,8 +11,7 @@ global:
     FSL_STANDARDS: "$FSLDIR/data/standard"
 
 filespecs:
-
-  #### VOLUMETRIC ANATOMICAL START ###
+  ### VOLUMETRIC ANATOMICAL START ###
   - name: t1w_biasfield
     method: registration
     args:
@@ -111,10 +110,10 @@ filespecs:
         value: t1w2mni
     out_path: "${sub}/anat/${sub}_${desc}_T1w.svg"
   
-  # VOLUMETRIC ANATOMICAL END ###
+  ### VOLUMETRIC ANATOMICAL END ###
   
   
-  # VOLUMETRIC FUNCTIONAL START ###
+  ### VOLUMETRIC FUNCTIONAL START ###
   - name: epi_sdc
     method: registration
     args:
@@ -188,7 +187,7 @@ filespecs:
         value: epi32k
     out_path: "${sub}/${ses}/func/${sub}_${ses}_${task}_${run}_${desc}_bold.svg"
   
-   SURFACE ANATOMICAL START ##
+  ### SURFACE ANATOMICAL START ###
   - name: t1w_surface
     method: surface_anat
     args:
@@ -247,4 +246,4 @@ filespecs:
         value: myelinmap
     out_path: "${sub}/anat/${sub}_${desc}_T1w.png"
 
-### SURFACE ANATOMICAL END ###
+  ### SURFACE ANATOMICAL END ###

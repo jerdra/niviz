@@ -11,7 +11,6 @@ import os
 import copy
 
 import logging
-import logging.config
 import collections.abc
 from string import Template
 from pathlib import Path
@@ -28,10 +27,10 @@ from glob import glob
 
 from .node_factory import ArgInputSpec
 
-logging.config.fileConfig("logging.conf")
-
 # Initialize module logger
 logger = logging.getLogger("config")
+if (logger.hasHandlers()):
+    logger.handlers.clear()
 
 
 class ValidationError(ValueError):

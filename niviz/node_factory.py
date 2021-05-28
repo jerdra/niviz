@@ -18,10 +18,10 @@ from dataclasses import dataclass, InitVar
 from copy import deepcopy
 
 import logging
-import logging.config
 
-logging.config.fileConfig("logging.conf")
-logger = logging.getLogger("nodeFactory")
+logger = logging.getLogger(__name__)
+if (logger.hasHandlers()):
+    logger.handlers.clear()
 
 
 @dataclass
@@ -136,8 +136,7 @@ class RPTFactory(object):
 
         # Create and configure node args
         interface_args = spec.make_interface_args(out_path, make_dirs)
-        logger.debug(
-            f"Constructing {spec.name} using {interface_class}")
+        logger.debug(f"Constructing {spec.name} using {interface_class}")
         logger.debug(f"Args:\n {interface_args}")
         return interface_class(generate_report=True, **interface_args)
 

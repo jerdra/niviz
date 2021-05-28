@@ -3,6 +3,10 @@ from __future__ import annotations
 import os
 import argparse
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 
 def _get_package_name(config):
@@ -11,7 +15,7 @@ def _get_package_name(config):
     '''
 
     with open(config, 'r') as f:
-        package_name = yaml.load(f)['package']
+        package_name = yaml.load(f, Loader=Loader)['package']
     return package_name
 
 

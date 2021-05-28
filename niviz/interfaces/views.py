@@ -321,7 +321,7 @@ class _IFreesurferVolParcellationOutputSpecRPT(
     pass
 
 
-class _IFreeSurferVolParcellationRPT(ParcellationRC):
+class IFreesurferVolParcellationRPT(ParcellationRC):
     '''
     Freesurfer-based Parcellation Report.
 
@@ -710,14 +710,14 @@ def _parse_freesurfer_LUT(colortable: str) -> dict:
         Matplotlib colormap object encoding Freesurfer colors
     '''
     color_mapping = {}
-    with open(colortable, 'w') as ct:
+    with open(colortable, 'r') as ct:
         for line in ct:
-            if "#" in ct:
+            if "#" in line or not line.strip().strip("\n"):
                 continue
             roi, _, r, g, b, _ = [
                 entry for entry in line.strip("\n").split(" ") if entry
             ]
-            color_mapping[roi] = [r, g, b]
+            color_mapping[roi] = [int(r), int(g), int(b)]
 
     return color_mapping
 
@@ -750,4 +750,4 @@ def _run_imports() -> None:
     register_interface(IFSCoregRPT, 'freesurfer_coreg')
     register_interface(ISurfVolRPT, 'surface_coreg')
     register_interface(ISurfMapRPT, 'surface')
-    register_interface(IFreesurferVolParcellation, 'freesurfer_parcellation')
+    register_interface(IFreesurferVolParcellationRPT, 'freesurfer_parcellation')

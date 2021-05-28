@@ -90,7 +90,7 @@
 <li><a class="reference internal" href="#">niviz.interfaces package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#niviz-interfaces-report-base-module">niviz.interfaces.report_base module</a></li>
-<li><a class="reference internal" href="#niviz-interfaces-views-module">niviz.interfaces.views module</a></li>
+<li><a class="reference internal" href="#module-niviz.interfaces.views">niviz.interfaces.views module</a></li>
 <li><a class="reference internal" href="#module-niviz.interfaces">Module contents</a></li>
 </ul>
 </li>
@@ -169,8 +169,529 @@
 <div class="section" id="niviz-interfaces-report-base-module">
 <h2>niviz.interfaces.report_base module<a class="headerlink" href="#niviz-interfaces-report-base-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="niviz-interfaces-views-module">
-<h2>niviz.interfaces.views module<a class="headerlink" href="#niviz-interfaces-views-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-niviz.interfaces.views">
+<span id="niviz-interfaces-views-module"></span><h2>niviz.interfaces.views module<a class="headerlink" href="#module-niviz.interfaces.views" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFSCoregRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">IFSCoregRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFSCoregRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base.RegistrationRC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFSCoregRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFSCoregRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Side-effect function of IFSCoregRPT.</p>
+<p>Generates Freesurfer-based EPI2T1 coregistration report
+:type runtime: Bunch
+:param runtime: Nipype runtime object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Resultant runtime object propogated through ReportCapable
+interfaces</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFSCoregRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFSCoregRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does nothing.</p>
+<p>Implements identity operation. IFSCoregRPT expects
+fully registered inputs, so no operations are performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object (unchanged)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFSCoregRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IFSCoregRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IFSCoregInputSpecRPT" title="niviz.interfaces.views._IFSCoregInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IFSCoregInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFSCoregRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IFSCoregRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IFSCoregOutputSpecRPT" title="niviz.interfaces.views._IFSCoregOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IFSCoregOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFreesurferVolParcellationRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">IFreesurferVolParcellationRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFreesurferVolParcellationRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#niviz.interfaces.views.ParcellationRC" title="niviz.interfaces.views.ParcellationRC"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views.ParcellationRC</span></code></a></p>
+<p>Freesurfer-based Parcellation Report.</p>
+<p>Uses FreeSurferColorLUT table to map colors to integer values
+found in NIFTI file</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFreesurferVolParcellationRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFreesurferVolParcellationRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform any post-_run_interface() processing</p>
+<p>Subclasses may override this function to modify <code class="docutils literal notranslate"><span class="pre">runtime</span></code> object or
+interface state</p>
+<p>MUST return runtime object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Bunch</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFreesurferVolParcellationRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IFreesurferVolParcellationRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core function that executes interface</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Bunch</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFreesurferVolParcellationRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IFreesurferVolParcellationRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IFreesurferVolParcellationInputSpecRPT" title="niviz.interfaces.views._IFreesurferVolParcellationInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IFreesurferVolParcellationInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IFreesurferVolParcellationRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IFreesurferVolParcellationRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IFreesurferVolParcellationOutputSpecRPT" title="niviz.interfaces.views._IFreesurferVolParcellationOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IFreesurferVolParcellationOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IRegRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">IRegRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base.RegistrationRC</span></code></p>
+<p>Implementation of Identity operation on RegistrationRC</p>
+<p>This class performs no operations and generates a report
+as a side-effect. It is primarily used to generate registration
+reports on already registered data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IRegRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Side-effect function of IRegRPT.</p>
+<p>Generate transition report as a side-effect. No operations
+are performed on the data (identity)</p>
+<p>If a 4D image is passed in the first index will be pulled for viewing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object propogated through ReportCapable
+interfaces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IRegRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function of IRegRPT, does nothing.</p>
+<p>Implements identity operation. IRegRPT expects
+fully registered inputs, so no operations are performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object (unchanged)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IRegRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IRegInputSpecRPT" title="niviz.interfaces.views._IRegInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IRegInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.IRegRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.IRegRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._IRegOutputSpecRPT" title="niviz.interfaces.views._IRegOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._IRegOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISegRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">ISegRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base.SegmentationRC</span></code></p>
+<p>Class to generate registration images from pre-existing
+NIFTI files.</p>
+<p>Effectively acts as an Identity node with report
+generation as a side-effect.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISegRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Side-effect function of ISegRPT.</p>
+<p>Generate transition report as a side-effect. No operations
+are performed on the data (identity)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object propogated through ReportCapable
+interfaces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISegRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function of ISegRPT, does nothing.</p>
+<p>Implements identity operation. ISegRPT expects
+fully registered inputs, so no operations are performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object (unchanged)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISegRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISegInputSpecRPT" title="niviz.interfaces.views._ISegInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISegInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISegRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISegRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISegOutputSpecRPT" title="niviz.interfaces.views._ISegOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISegOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">ISurfMapRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableInterface</span></code></p>
+<p>Class for generating Niviz surface visualizations given
+a mesh and surface mapping</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT._generate_report">
+<span class="sig-name descname"><span class="pre">_generate_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT._generate_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Side effect function of ISurfMapRPT</p>
+<p>Generate a surface visualization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform any post-_run_interface() processing</p>
+<p>Subclasses may override this function to modify <code class="docutils literal notranslate"><span class="pre">runtime</span></code> object or
+interface state</p>
+<p>MUST return runtime object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Bunch</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiation of abstract method, does nothing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>runtime</strong> (<em>Bunch</em>) – Nipype runtime object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resultant runtime object (unchanged)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>runtime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISurfMapInputSpecRPT" title="niviz.interfaces.views._ISurfMapInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISurfMapInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfMapRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISurfMapRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISurfMapOutputSpecRPT" title="niviz.interfaces.views._ISurfMapOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISurfMapOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">ISurfVolRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#niviz.interfaces.views.SurfVolRC" title="niviz.interfaces.views.SurfVolRC"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views.SurfVolRC</span></code></a></p>
+<p>Report interface for co-registered surface/volumetric images</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT._generate_report">
+<span class="sig-name descname"><span class="pre">_generate_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT._generate_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a composite for co-registration of surface and volume images</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT._post_run_hook">
+<span class="sig-name descname"><span class="pre">_post_run_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT._post_run_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform any post-_run_interface() processing</p>
+<p>Subclasses may override this function to modify <code class="docutils literal notranslate"><span class="pre">runtime</span></code> object or
+interface state</p>
+<p>MUST return runtime object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT._run_interface">
+<span class="sig-name descname"><span class="pre">_run_interface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runtime</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT._run_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core function that executes interface</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT.input_spec">
+<span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT.input_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISurfVolInputSpecRPT" title="niviz.interfaces.views._ISurfVolInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISurfVolInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ISurfVolRPT.output_spec">
+<span class="sig-name descname"><span class="pre">output_spec</span></span><a class="headerlink" href="#niviz.interfaces.views.ISurfVolRPT.output_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#niviz.interfaces.views._ISurfVolOutputSpecRPT" title="niviz.interfaces.views._ISurfVolOutputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ISurfVolOutputSpecRPT</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ParcellationRC">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">ParcellationRC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ParcellationRC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableInterface</span></code></p>
+<p>Abstract mixin for Parcellation visualization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.interfaces.views.ParcellationRC._generate_report">
+<span class="sig-name descname"><span class="pre">_generate_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.ParcellationRC._generate_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a parcellation overlay image</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views.SurfVolRC">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">SurfVolRC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.SurfVolRC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableInterface</span></code></p>
+<p>Abstract mixin for surface-volume coregistered images</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._FSInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_FSInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._FSInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IFSCoregInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IFSCoregInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IFSCoregInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#niviz.interfaces.views._FSInputSpecRPT" title="niviz.interfaces.views._FSInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._FSInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IFSCoregOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IFSCoregOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IFSCoregOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IFreesurferVolParcellationInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IFreesurferVolParcellationInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IFreesurferVolParcellationInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#niviz.interfaces.views._ParcellationInputSpecRPT" title="niviz.interfaces.views._ParcellationInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._ParcellationInputSpecRPT</span></code></a>, <a class="reference internal" href="#niviz.interfaces.views._FSInputSpecRPT" title="niviz.interfaces.views._FSInputSpecRPT"><code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views._FSInputSpecRPT</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IFreesurferVolParcellationOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IFreesurferVolParcellationOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IFreesurferVolParcellationOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IRegInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IRegInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IRegInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._IRegOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_IRegOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._IRegOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISegInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISegInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISegInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+<p>Input specification for ISegRPT, implements:</p>
+<p>anat_file: Input anatomical image
+seg_files: Input segmentation image(s) - can be a list or a single file
+mask_file: Input ROI mask</p>
+<p>Bases _SVGReportCapableInputSpec which implements:</p>
+<p>out_report: Filename trait
+compress_report: [“auto”, true, false]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISegOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISegOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISegOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISurfMapInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISurfMapInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISurfMapInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISurfMapOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISurfMapOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISurfMapOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISurfVolInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISurfVolInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISurfVolInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+<p>Input spec for reports coregistering surface and volume images</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ISurfVolOutputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ISurfVolOutputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ISurfVolOutputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nipype.interfaces.mixins.reporting.ReportCapableOutputSpec</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.interfaces.views._ParcellationInputSpecRPT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_ParcellationInputSpecRPT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._ParcellationInputSpecRPT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">niworkflows.interfaces.report_base._SVGReportCapableInputSpec</span></code></p>
+<p>General base input to constrain any parcellation-based
+visualization depending on ParcellationRC</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.interfaces.views._make_3d_from_4d">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_make_3d_from_4d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nii</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._make_3d_from_4d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert 4D Image into 3D one by pulling a single volume.
+Performs identity mapping if input image is 3D</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nii</strong> (<em>Nifti1Image</em>) – Input image</p></li>
+<li><p><strong>ind</strong> (<em>int</em>) – Index to pull from 4D image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Nifti1Image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.interfaces.views._parcel2segs">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_parcel2segs</span></span><a class="headerlink" href="#niviz.interfaces.views._parcel2segs" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">niviz.interfaces.views.multigen.&lt;locals&gt;._multigen</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.interfaces.views._parse_freesurfer_LUT">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_parse_freesurfer_LUT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">colortable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._parse_freesurfer_LUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse Freesurfer-style colortable into a
+matplotlib compatible categorical colormap</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>to Freesurfer colormap table</strong> (<em>Path</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Matplotlib colormap object encoding Freesurfer colors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.interfaces.views._reorient_to_ras">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_reorient_to_ras</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._reorient_to_ras" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-orient image to RAS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>Nifti1Image</em>) – Image to re-orient to match ref image</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Nifti1Image</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>img re-oriented to RAS</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.interfaces.views._run_imports">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">_run_imports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views._run_imports" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.interfaces.views.multigen">
+<span class="sig-prename descclassname"><span class="pre">niviz.interfaces.views.</span></span><span class="sig-name descname"><span class="pre">multigen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gen_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.interfaces.views.multigen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 <div class="section" id="module-niviz.interfaces">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-niviz.interfaces" title="Permalink to this headline">¶</a></h2>

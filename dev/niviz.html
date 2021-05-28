@@ -90,7 +90,7 @@
 <li><a class="reference internal" href="#">niviz package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#niviz-config-module">niviz.config module</a></li>
+<li><a class="reference internal" href="#module-niviz.config">niviz.config module</a></li>
 <li><a class="reference internal" href="#module-niviz">Module contents</a></li>
 </ul>
 </li>
@@ -170,7 +170,7 @@
 <li class="toctree-l1"><a class="reference internal" href="niviz.interfaces.html">niviz.interfaces package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="niviz.interfaces.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="niviz.interfaces.html#niviz-interfaces-report-base-module">niviz.interfaces.report_base module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niviz.interfaces.html#niviz-interfaces-views-module">niviz.interfaces.views module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niviz.interfaces.html#module-niviz.interfaces.views">niviz.interfaces.views module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="niviz.interfaces.html#module-niviz.interfaces">Module contents</a></li>
 </ul>
 </li>
@@ -184,8 +184,294 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="niviz-config-module">
-<h2>niviz.config module<a class="headerlink" href="#niviz-config-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-niviz.config">
+<span id="niviz-config-module"></span><h2>niviz.config module<a class="headerlink" href="#module-niviz.config" title="Permalink to this headline">¶</a></h2>
+<p>Contains classes/methods that validate and use a pipeline’s
+output configuration specification to generate arguments
+for nipype ReportCapableInterfaces</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.config.FileSpec">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">FileSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to implement QcSpec</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.FileSpec._extract_bids_entities">
+<span class="sig-name descname"><span class="pre">_extract_bids_entities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec._extract_bids_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract BIDS entities from path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – Input path for a filespec.args key</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if all keys in bids_map cannot be found for a given
+    path</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a tuple of BIDS (field,value) pairs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.FileSpec._group_by_hierarchy">
+<span class="sig-name descname"><span class="pre">_group_by_hierarchy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entities_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_entities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec._group_by_hierarchy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform hierarchical grouping recursively</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.args">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">args</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.FileSpec.args" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.bids_map">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">bids_map</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.FileSpec.bids_map" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.gen_args">
+<span class="sig-name descname"><span class="pre">gen_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec.gen_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs arguments used to build Nipype ReportCapableInterfaces
+using bids entities extracted from argument file paths and
+additional settings in configuration specification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_path</strong> – Path to root directory of pipeline outputs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of arguments for a given filespec[i].args</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.iter_args">
+<span class="sig-name descname"><span class="pre">iter_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec.iter_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:</p>
+<p>A triple of
+(argument key, argument value, whether value is a BIDS field or not).
+Pulled from filespec[i].args in configuration spec</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.method">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#niviz.config.FileSpec.method" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#niviz.config.FileSpec.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.out_path">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">out_path</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#niviz.config.FileSpec.out_path" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">SpecConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to provide interface to configuration
+specs for sourcing QC input files</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._apply_envs">
+<span class="sig-name descname"><span class="pre">_apply_envs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig._apply_envs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply specification global.env to values in dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – ReportCapableInterface to glob ‘value’ field with
+global variables to be substituted</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>ReportCapableInterface to ‘value’ field with</dt><dd><p>global variables resolved</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>arg_list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._get_file_arg">
+<span class="sig-name descname"><span class="pre">_get_file_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig._get_file_arg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct argument for a single FileSpec</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> – Specification describing how to scrape files within
+pipeline outputs</p></li>
+<li><p><strong>base_path</strong> – Root directory of pipeline outputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of <cite>ArgInputSpec</cite> objects used to construct
+nipype.interfaces.mixins.ReportCapableInterface objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._substitute_env">
+<span class="sig-name descname"><span class="pre">_substitute_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig._substitute_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve system environment variables specified in global.env</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All environment variables must be resolved</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Strings in global.env containing environment variables</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Output:</dt><dd><p>r: String with resolved environment variables</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#niviz.config.ValidationError" title="niviz.config.ValidationError"><strong>ValidationError</strong></a> – If environment variables cannot be resolved</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._validate">
+<span class="sig-name descname"><span class="pre">_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yml</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig._validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate YAML file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yml</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Configuration specification</p></li>
+<li><p><strong>schema</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Schema definition to validate against</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#niviz.config.ValidationError" title="niviz.config.ValidationError"><strong>ValidationError</strong></a> – If yml does not follow defined schema</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._yaml">
+<span class="sig-name descname"><span class="pre">_yaml</span></span><em class="property"><span class="pre">:</span> <span class="pre">pathlib.Path</span></em><a class="headerlink" href="#niviz.config.SpecConfig._yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.SpecConfig.defaults" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig.file_specs">
+<span class="sig-name descname"><span class="pre">file_specs</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.SpecConfig.file_specs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig.get_file_args">
+<span class="sig-name descname"><span class="pre">get_file_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig.get_file_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scrape <cite>base_path</cite> using configuration spec and construct
+arguments for image generation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_path</strong> – Base path of outputs to scrape</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of lists where each outer list defines a FileSpec entry
+and each inner-list defines a list of <cite>ArgInputSpecs</cite> used to
+generate an individual SVG image</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="niviz.config.ValidationError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">ValidationError</span></span><a class="headerlink" href="#niviz.config.ValidationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when Configuration File is incorrectly specified</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.config._nested_update">
+<span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">_nested_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config._nested_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive updating of nested dict
+<a class="reference external" href="https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth">https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.config._prefix_path">
+<span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">_prefix_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config._prefix_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefix path with root directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="niviz.config.fetch_data">
+<span class="sig-prename descclassname"><span class="pre">niviz.config.</span></span><span class="sig-name descname"><span class="pre">fetch_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.fetch_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to provide a list of arguments
+given a configuration spec and base path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Path to configuration specification</p></li>
+<li><p><strong>base_path</strong> – Path to root directory of pipeline outputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of <cite>ArgInputSpec</cite> to be used to automate construction
+of Nipype ReportCapableInterface objects</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-niviz">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-niviz" title="Permalink to this headline">¶</a></h2>

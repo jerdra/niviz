@@ -750,3 +750,4 @@ def _run_imports() -> None:
     register_interface(IFSCoregRPT, 'freesurfer_coreg')
     register_interface(ISurfVolRPT, 'surface_coreg')
     register_interface(ISurfMapRPT, 'surface')
+    register_interface(IFreesurferVolParcellation, 'freesurfer_parcellation')

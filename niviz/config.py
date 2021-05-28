@@ -395,8 +395,9 @@ class FileSpec(object):
                     bids_entities = self._extract_bids_entities(p)
                     bids_results.append((bids_entities, cur_mapping))
             else:
-                # Return null BIDS mapping
-                bids_entities = self._extract_bids_entities(v)
+                # Return null bids mapping since non-globbable paths
+                # likely don't encode BIDS keys
+                bids_entities = {k: None for k in self.bids_map.keys()}
                 bids_results.append((bids_entities, {"field": f, "value": v}))
 
         matched = self._group_by_hierarchy(bids_results, self.bids_map.keys())

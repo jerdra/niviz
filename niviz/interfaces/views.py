@@ -321,7 +321,7 @@ class _IFreesurferVolParcellationOutputSpecRPT(
     pass
 
 
-class _IFreeSurferVolParcellationRPT(reporting.ReportCapableInterface):
+class _IFreeSurferVolParcellationRPT(ParcellationRC):
     '''
     Freesurfer-based Parcellation Report.
 

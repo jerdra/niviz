@@ -13,6 +13,7 @@ import niworkflows.interfaces.report_base as nrc
 from nipype.interfaces.base import File, traits, InputMultiPath, Directory
 from traits.trait_types import BaseInt
 from nipype.interfaces.mixins import reporting
+from niworkflows.viz.utils import cuts_from_bbox, compose_view
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -206,25 +207,27 @@ class ISegRPT(nrc.SegmentationRC):
         return runtime
 
 
-class _IFSCoregInputSpecRPT(nrc._SVGReportCapableInputSpec):
-
+class _FSInputSpecRPT(nrc._SVGReportCapableInputSpec):
     bg_nii = File(exists=True,
                   usedefault=False,
                   resolve=True,
-                  desc='Background NIFTI for SVG',
-                  mandatory=True)
-
-    fg_nii = File(exists=True,
-                  usedefault=False,
-                  resolve=True,
-                  desc='Foreground NIFTI for SVG',
-                  mandatory=True)
+                  desc='Background NIFTI for SVG, will use T1.mgz if not '
+                  'specified',
+                  mandatory=False)
 
     fs_dir = Directory(exists=True,
                        usedefault=False,
                        resolve=True,
                        desc='Subject freesurfer directory',
                        mandatory=True)
+
+
+class _IFSCoregInputSpecRPT(_FSInputSpecRPT):
+    fg_nii = File(exists=True,
+                  usedefault=False,
+                  resolve=True,
+                  desc='Foreground NIFTI for SVG',
+                  mandatory=True)
 
 
 class _IFSCoregOutputSpecRPT(reporting.ReportCapableOutputSpec):
@@ -269,6 +272,98 @@ class IFSCoregRPT(nrc.RegistrationRC):
 
         """
         return runtime
+
+
+class _ParcellationInputSpecRPT(nrc._SVGReportCapableInputSpec):
+    parcellation = File(exists=True,
+                        usedefault=False,
+                        resolve=True,
+                        desc="Parcellated NIFTI file",
+                        mandatory=True)
+    colortable = File(exists=True,
+                      usedefault=False,
+                      resolve=True,
+                      desc="Lookup color table for parcellation")
+
+
+class _IParcellationOutputSpecRPT(reporting.ReportCapableOutputSpec):
+    pass
+
+
+class _IFreesurferVolParcellationInputSpecRPT(_ParcellationInputSpecRPT,
+                                              _FSInputSpecRPT):
+    pass
+
+
+class _IFreesurferVolParcellationOutputSpecRPT(
+        reporting.ReportCapableOutputSpec):
+    pass
+
+
+class _IFreeSurferVolParcellationRPT(reporting.ReportCapableInterface):
+    '''
+    Freesurfer-based Parcellation Report.
+
+    Uses FreeSurferColorLUT table to map colors to integer values
+    found in NIFTI file
+    '''
+
+    input_spec = _IFreesurferVolParcellationInputSpecRPT
+    output_spec = _IFreesurferVolParcellationOutputSpecRPT
+
+    def _post_run_hook(self, runtime: Bunch) -> Bunch:
+
+        if not self.inputs.bg_nii:
+            self._bg_nii = nib.load(
+                os.path.join(self.inputs.fs_dir, "mri", "T1.mgz"))
+        else:
+            self._bg_nii = nib.load(self.inputs.bg_nii)
+
+        # TODO: ENUM this to the available freesurfer parcellations
+        parcellation = nib.load(self.inputs.parcellation)
+        d_parcellation = parcellation.get_fdata(dtype=int)
+
+        # Re-normalize the ROI values by rank
+        # Then extract colors from full colortable using rank ordering
+        unique_v, u_id = np.unique(d_parcellation.flatten())
+        colormap = _parse_freesurfer_LUT(self.inputs.colortable)
+
+        # Remap parcellation to rank ordering
+        d_parcellation = u_id.reshape(d_parcellation)
+        parcellation = nilearn.image.new_img_like(parcellation,
+                                                  d_parcellation,
+                                                  copy_header=True)
+
+        # Resample to background resolution
+        parcellation = nilearn.image.resample_to_img(parcellation,
+                                                     self._bg_nii,
+                                                     interpolation='nearest')
+        self._segs = _parcel2segs(parcellation)
+
+        # Get segmentation colors
+        self._colors = [colormap[i] for i in unique_v]
+
+        # Now we need to call the parent process
+        return super(_IFreeSurferVolParcellationRPT,
+                     self)._post_run_hook(runtime)
+
+    def _run_interface(self, runtime: Bunch) -> Bunch:
+        return runtime
+
+    def _generate_report(self):
+        '''
+        Construct a parcellation overlay image
+        '''
+        from niworkflows.viz.utils import plot_segs
+
+        compose_view(plot_segs(image_nii=self._bg_nii,
+                               seg_niis=self._segs,
+                               bbox_nii=None,
+                               out_file=self.inputs.out_report,
+                               colors=self._colors,
+                               filled=True),
+                     fg_svgs=None,
+                     out_file=self._out_report)
 
 
 class _ISurfVolInputSpecRPT(nrc._SVGReportCapableInputSpec):
@@ -338,7 +433,6 @@ class ISurfVolRPT(SurfVolRC):
         '''Make a composite for co-registration of surface and volume images'''
 
         import trimesh
-        from niworkflows.viz.utils import cuts_from_bbox
 
         l_surf = nib.load(self._surf_l)
         r_surf = nib.load(self._surf_r)
@@ -598,6 +692,51 @@ def _reorient_to_ras(img: Nifti1Image) -> Nifti1Image:
         nib.orientations.aff2axcodes(img.affine))
     img2ref = nib.orientations.ornt_transform(img_ornt, ras_ornt)
     return img.as_reoriented(img2ref)
+
+
+def _parse_freesurfer_LUT(colortable: str) -> dict:
+    '''
+    Parse Freesurfer-style colortable into a
+    matplotlib compatible categorical colormap
+
+    Args:
+        Path to Freesurfer colormap table
+
+    Returns:
+        Matplotlib colormap object encoding Freesurfer colors
+    '''
+    color_mapping = {}
+    with open(colortable, 'w') as ct:
+        for line in ct:
+            if "#" in ct:
+                continue
+            roi, _, r, g, b, _ = [
+                entry for entry in line.strip("\n").split(" ") if entry
+            ]
+            color_mapping[roi] = [r, g, b]
+
+    return color_mapping
+
+
+# TODO: Move plotting/helper utilities into own module
+# https://stackoverflow.com/questions/1376438/how-to-make-a-repeating-generator-in-python
+def multigen(gen_func):
+    class _multigen(object):
+        def __init__(self, *args, **kwargs):
+            self.__args = args
+            self.__kwargs = kwargs
+
+        def __iter__(self):
+            return gen_func(*self.__args, **self.__kwargs)
+
+    return _multigen
+
+
+@multigen
+def _parcel2segs(parcellation):
+    d_parcellation = parcellation.get_fdata(dtype=int)
+    for i in np.unique(parcellation.get_fdata(dtype=int)):
+        yield nilearn.image.new_img_like(parcellation, d_parcellation == i)
 
 
 # Register interfaces with adapter-factory

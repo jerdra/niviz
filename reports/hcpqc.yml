@@ -17,10 +17,6 @@ sections:
     caption: The MNI template brainmask is warped back into the T1 template (if using multiple T1s) space. This is used to mask the T1 image.
     bids: {datatype: anat, desc: t1wbrainmask, suffix: T1w}
 
-    #  - subtitle: Freesurfer reconstruction
-    #    caption: Surfaces (white and pial) reconstructed with FreeSurfer, are overlaid on the participant's T1w template image
-    #    bids: {}
-
   - subtitle: T2w Bias field correction
     caption: This panel shows the bias-field correction of the template T2 image (if several T2w images were found)
     bids: {datatype: anat, desc: t2wbiasfield, suffix: T2w}
@@ -38,7 +34,6 @@ sections:
   - subtitle: Myelin Map
     caption: T1w/T2w ratio is computed and displayed on fsaverage_LR32k surface.
     bids: {datatype: anat, desc: myelinmap, suffix: T1w}
-    static: true
 
 - name: Functional
   ordering: session,task,acquisition,ceagent,reconstruction,direction,run,echo

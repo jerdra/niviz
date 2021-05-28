@@ -532,6 +532,9 @@ class _ISurfMapInputSpecRPT(nrc._SVGReportCapableInputSpec):
                                      desc="Visualize all mappings in "
                                      "mapping file, if false will visualize "
                                      "only the first mapping")
+    zero_nan = traits.Bool(False,
+                           usedefault=True,
+                           desc="Display NaNs as zeros")
 
 
 class _ISurfMapOutputSpecRPT(reporting.ReportCapableOutputSpec):
@@ -568,6 +571,7 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
         self._colormap = self.inputs.colormap
         self._visualize_all_maps = self.inputs.visualize_all_maps
         self._darkness = self.inputs.darkness
+        self._zero_nan = self.inputs.zero_nan
 
         return super(ISurfMapRPT, self)._post_run_hook(runtime)
 
@@ -591,6 +595,7 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
         r_surf = nib.load(self._right_surf)
         num_views = len(self._views)
         num_maps = 1
+        vmin, vmax = None, None
 
         if self._cifti_map:
             cifti_map = nib.load(self._cifti_map)
@@ -604,6 +609,7 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
                 num_maps = lm.shape[0]
 
             map_hemi = Hemispheres(left=(lv, lt, lm), right=(rv, rt, rm))
+            vmin, vmax = np.nanpercentile(cifti_map.get_fdata(), [2, 98])
         else:
             # Use vertices and triangles from Mesh
             lv, lt = niviz.surface.gifti_get_mesh(l_surf)
@@ -630,14 +636,14 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
             a.set_facecolor("black")
 
             # Get row (map)
-            i_map = i // num_views
+            i_map = i // (num_views * 2)
 
             # Get column
-            i_view = (i - i_map) % (num_views * 2)
-            view = self._views[i_view // 2]
+            i_view = (i // (i_map + 1)) % num_views
+            view = self._views[i_view]
 
             # Get hemisphere
-            hemi = i_view % 2
+            hemi = i // 2
             if hemi == 0:
                 display_map = map_hemi.left
                 display_bg = bg_hemi.left
@@ -649,6 +655,8 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
 
             # Plot
             v, t, m = display_map
+            if self._zero_nan:
+                m[np.isnan(m)] = 0
             nplot.plot_surf([v, t],
                             surf_map=m,
                             bg_map=display_bg,
@@ -657,7 +665,9 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
                             hemi=hemi,
                             view=view,
                             bg_on_data=True,
-                            darkness=self._darkness)
+                            darkness=self._darkness,
+                            vmin=vmin,
+                            vmax=vmax)
 
         plt.draw()
         plt.savefig(self._out_report)

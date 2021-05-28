@@ -251,9 +251,8 @@ class FileSpec(object):
         Pulled from filespec[i].args in configuration spec
         '''
         for f in self.args:
-
-            bids = f['no_bids'] if 'no_bids' in f else False
-            yield (f['field'], f['value'], bids)
+            ispath = f['path'] if 'path' in f else False
+            yield (f['field'], f['value'], ispath)
 
     @property
     def bids_map(self) -> dict:
@@ -383,24 +382,29 @@ class FileSpec(object):
         '''
 
         bids_results = []
-        for f, v, nobids in self.iter_args():
-            if isinstance(v, str):
+        for f, v, ispath in self.iter_args():
+
+            if isinstance(v, str) and ispath:
                 v = _prefix_path(v, os.path.abspath(base_path))
-            for p in glob(f"{v}"):
+                for p in glob(f"{v}"):
 
-                cur_mapping = ({
-                    "field": f,
-                    "path": p,
-                })
+                    cur_mapping = ({
+                        "field": f,
+                        "value": p,
+                    })
 
-                bids_entities = self._extract_bids_entities(p)
-                bids_results.append((bids_entities, cur_mapping))
+                    bids_entities = self._extract_bids_entities(p)
+                    bids_results.append((bids_entities, cur_mapping))
+            else:
+                # Return null BIDS mapping
+                bids_entities = self._extract_bids_entities(v)
+                bids_results.append((bids_entities, {"field": f, "value": v}))
 
         matched = self._group_by_hierarchy(bids_results, self.bids_map.keys())
         arg_specs = []
         for bids_entities, filespecs in matched.items():
 
-            bids_argmap = {i["field"]: i["path"] for i in filespecs}
+            bids_argmap = {i["field"]: i["value"] for i in filespecs}
             arg_spec = ArgInputSpec(name=self.name,
                                     interface_args=bids_argmap,
                                     bids_entities=bids_entities,

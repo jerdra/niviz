@@ -275,6 +275,10 @@ class IFSCoregRPT(nrc.RegistrationRC):
 
 
 class _ParcellationInputSpecRPT(nrc._SVGReportCapableInputSpec):
+    """
+    General base input to constrain any parcellation-based
+    visualization depending on ParcellationRC
+    """
     parcellation = File(exists=True,
                         usedefault=False,
                         resolve=True,
@@ -286,8 +290,25 @@ class _ParcellationInputSpecRPT(nrc._SVGReportCapableInputSpec):
                       desc="Lookup color table for parcellation")
 
 
-class _IParcellationOutputSpecRPT(reporting.ReportCapableOutputSpec):
-    pass
+class ParcellationRC(reporting.ReportCapableInterface):
+    '''Abstract mixin for Parcellation visualization'''
+    def _generate_report(self):
+        '''
+        Construct a parcellation overlay image
+        '''
+        from niworkflows.viz.utils import plot_segs
+
+        segs = _parcel2segs(self._parcellation)
+        compose_view(
+            plot_segs(
+                image_nii=self._bg_nii,
+                seg_niis=segs,
+                bbox_nii=None,
+                out_file=None,  # this arg doesn't matter
+                colors=self._colors,
+                filled=True),
+            fg_svgs=None,
+            out_file=self._out_report)
 
 
 class _IFreesurferVolParcellationInputSpecRPT(_ParcellationInputSpecRPT,
@@ -310,6 +331,9 @@ class _IFreeSurferVolParcellationRPT(reporting.ReportCapableInterface):
 
     input_spec = _IFreesurferVolParcellationInputSpecRPT
     output_spec = _IFreesurferVolParcellationOutputSpecRPT
+
+    def _run_interface(self, runtime: Bunch) -> Bunch:
+        return runtime
 
     def _post_run_hook(self, runtime: Bunch) -> Bunch:
 
@@ -335,10 +359,8 @@ class _IFreeSurferVolParcellationRPT(reporting.ReportCapableInterface):
                                                   copy_header=True)
 
         # Resample to background resolution
-        parcellation = nilearn.image.resample_to_img(parcellation,
-                                                     self._bg_nii,
-                                                     interpolation='nearest')
-        self._segs = _parcel2segs(parcellation)
+        self._parcellation = nilearn.image.resample_to_img(
+            parcellation, self._bg_nii, interpolation='nearest')
 
         # Get segmentation colors
         self._colors = [colormap[i] for i in unique_v]
@@ -346,24 +368,6 @@ class _IFreeSurferVolParcellationRPT(reporting.ReportCapableInterface):
         # Now we need to call the parent process
         return super(_IFreeSurferVolParcellationRPT,
                      self)._post_run_hook(runtime)
-
-    def _run_interface(self, runtime: Bunch) -> Bunch:
-        return runtime
-
-    def _generate_report(self):
-        '''
-        Construct a parcellation overlay image
-        '''
-        from niworkflows.viz.utils import plot_segs
-
-        compose_view(plot_segs(image_nii=self._bg_nii,
-                               seg_niis=self._segs,
-                               bbox_nii=None,
-                               out_file=self.inputs.out_report,
-                               colors=self._colors,
-                               filled=True),
-                     fg_svgs=None,
-                     out_file=self._out_report)
 
 
 class _ISurfVolInputSpecRPT(nrc._SVGReportCapableInputSpec):

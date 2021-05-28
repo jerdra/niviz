@@ -296,23 +296,45 @@ class ParcellationRC(reporting.ReportCapableInterface):
         '''
         Construct a parcellation overlay image
         '''
-        from niworkflows.viz.utils import plot_segs
+        import niworkflows.viz.utils as nwviz
+        from ..patches.niworkflows import _3d_in_file, _plot_anat_with_contours
+
+        '''
+        MONKEY PATCH:
+        _3d_in_file in niworkflows.viz.utils cannot accept Nifti1Images
+        as inputs.
+
+        This is a small patch that will stop it from failing when this is
+        the case
+        '''
+
+        # _3d_in_file more robust to accepting a Nifti1Image
+        nwviz._3d_in_file = _3d_in_file
+
+        # plot_anat_with_contours accepts filled
+        nwviz._plot_anat_with_contours = _plot_anat_with_contours
 
         segs = _parcel2segs(self._parcellation)
-        compose_view(
-            plot_segs(
+        nwviz.compose_view(
+            nwviz.plot_segs(
                 image_nii=self._bg_nii,
                 seg_niis=segs,
-                bbox_nii=None,
+                bbox_nii=self._mask_nii,
                 out_file=None,  # this arg doesn't matter
                 colors=self._colors,
-                filled=True),
+                filled=True,
+                alpha=0.3),
             fg_svgs=None,
             out_file=self._out_report)
 
 
 class _IFreesurferVolParcellationInputSpecRPT(_ParcellationInputSpecRPT,
                                               _FSInputSpecRPT):
+    mask_nii = File(exists=True,
+                  usedefault=False,
+                  resolve=True,
+                  desc='Mask file to use on background nifti',
+                  mandatory=False)
     pass
 
 
@@ -343,17 +365,19 @@ class IFreesurferVolParcellationRPT(ParcellationRC):
         else:
             self._bg_nii = nib.load(self.inputs.bg_nii)
 
+        self._mask_nii = self.inputs.mask_nii or None
+
         # TODO: ENUM this to the available freesurfer parcellations
         parcellation = nib.load(self.inputs.parcellation)
-        d_parcellation = parcellation.get_fdata(dtype=int)
+        d_parcellation = parcellation.get_fdata().astype(int)
 
         # Re-normalize the ROI values by rank
         # Then extract colors from full colortable using rank ordering
-        unique_v, u_id = np.unique(d_parcellation.flatten())
+        unique_v, u_id = np.unique(d_parcellation.flatten(), return_inverse=True)
         colormap = _parse_freesurfer_LUT(self.inputs.colortable)
 
         # Remap parcellation to rank ordering
-        d_parcellation = u_id.reshape(d_parcellation)
+        d_parcellation = u_id.reshape(d_parcellation.shape)
         parcellation = nilearn.image.new_img_like(parcellation,
                                                   d_parcellation,
                                                   copy_header=True)
@@ -366,7 +390,7 @@ class IFreesurferVolParcellationRPT(ParcellationRC):
         self._colors = [colormap[i] for i in unique_v]
 
         # Now we need to call the parent process
-        return super(_IFreeSurferVolParcellationRPT,
+        return super(IFreesurferVolParcellationRPT,
                      self)._post_run_hook(runtime)
 
 
@@ -727,7 +751,7 @@ def _parse_freesurfer_LUT(colortable: str) -> dict:
             roi, _, r, g, b, _ = [
                 entry for entry in line.strip("\n").split(" ") if entry
             ]
-            color_mapping[roi] = [int(r), int(g), int(b)]
+            color_mapping[int(roi)] = [int(r)/255,int(g)/255,int(b)/255]
 
     return color_mapping
 
@@ -748,8 +772,8 @@ def multigen(gen_func):
 
 @multigen
 def _parcel2segs(parcellation):
-    d_parcellation = parcellation.get_fdata(dtype=int)
-    for i in np.unique(parcellation.get_fdata(dtype=int)):
+    d_parcellation = parcellation.get_fdata().astype(int)
+    for i in np.unique(d_parcellation):
         yield nilearn.image.new_img_like(parcellation, d_parcellation == i)
 
 

@@ -3,7 +3,6 @@ Provides utility functions to access Surface data
 """
 
 import numpy as np
-from enum import Enum
 
 CIFTI_GIFTI_MAP = {
     'CIFTI_STRUCTURE_CORTEX_LEFT': 'left',

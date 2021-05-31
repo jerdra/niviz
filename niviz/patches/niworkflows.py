@@ -16,7 +16,7 @@ def _3d_in_file(in_file):
     """
     from nipype.utils import filemanip
 
-    if not isinstance(in_file, nib.Nifti1Image):
+    if not isinstance(in_file, nib.filebasedimages.SerializableImage):
         in_file = filemanip.filename_to_list(in_file)[0]
 
     try:

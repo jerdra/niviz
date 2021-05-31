@@ -290,9 +290,9 @@ class FileSpec(object):
                 try:
                     bids_val = re.search(v['value'], path)[0]
                 except TypeError:
-                    logger.info(
+                    logger.warning(
                         f"Cannot extract {k} from {path} using {v['regex']}!")
-                    bids_val = None
+                    raise
             else:
                 bids_val = v['value']
 
@@ -392,7 +392,13 @@ class FileSpec(object):
                         "value": p,
                     })
 
-                    bids_entities = self._extract_bids_entities(p)
+                    try:
+                        bids_entities = self._extract_bids_entities(p)
+                    except TypeError:
+                        logging.warning(f"{p} does not contain BIDS entities!")
+                        logging.warning("Skipping...")
+                        continue
+
                     bids_results.append((bids_entities, cur_mapping))
             else:
                 # Return null bids mapping since non-globbable paths

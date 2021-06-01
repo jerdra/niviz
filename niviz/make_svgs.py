@@ -35,6 +35,12 @@ def svg_util(args):
     arg_specs = niviz.config.fetch_data(args.spec_file, args.base_path)
     out_path = os.path.join(args.out_path, _get_package_name(args.spec_file))
 
+    if not args.rewrite:
+        arg_specs = [
+            a for a in arg_specs
+            if not os.path.exists(os.path.join(out_path, a._out_spec))
+        ]
+
     interfaces = [
         niviz.node_factory.get_interface(a, out_path) for a in arg_specs
     ]
@@ -100,6 +106,8 @@ def cli():
                             nargs="?",
                             const=1,
                             help="Number of threads to parallelize across")
+    parser_svg.add_argument("--rewrite",
+                            help="Overwrite existing SVG files")
     parser_svg.set_defaults(func=svg_util)
 
     parser_report = sub_parsers.add_parser('report',

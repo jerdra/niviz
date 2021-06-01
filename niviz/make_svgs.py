@@ -42,8 +42,9 @@ def svg_util(args):
         ]
 
     interfaces = [
-        niviz.node_factory.get_interface(a, out_path) for a in arg_specs
-    ]
+        n for a in arg_specs if
+        (n := niviz.node_factory.get_interface(a, out_path))
+        is not None]
 
     with Pool(processes=args.nthreads) as pool:
         pool.map(_mksvg, interfaces)

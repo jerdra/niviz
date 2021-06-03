@@ -663,7 +663,7 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
             i_map = i // (num_views * 2)
 
             # Get column
-            i_view = (i // (i_map + 1)) % num_views
+            i_view = i % (num_views * 2)
             view = self._views[i_view]
 
             # Get hemisphere

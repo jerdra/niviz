@@ -676,8 +676,8 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
         for i, a in enumerate(axs.flat):
             a.set_facecolor("black")
 
-            view = self.views[i]["view"]
-            hemi = self.views[i]["hemi"]
+            view = self._views[i]["view"]
+            hemi = self._views[i]["hemi"]
 
             display_map = getattr(map_hemi, hemi)
             display_bg = getattr(bg_hemi, hemi)

@@ -298,7 +298,6 @@ class ParcellationRC(reporting.ReportCapableInterface):
         '''
         import niworkflows.viz.utils as nwviz
         from ..patches.niworkflows import _3d_in_file, _plot_anat_with_contours
-
         '''
         MONKEY PATCH:
         _3d_in_file in niworkflows.viz.utils cannot accept Nifti1Images
@@ -331,10 +330,10 @@ class ParcellationRC(reporting.ReportCapableInterface):
 class _IFreesurferVolParcellationInputSpecRPT(_ParcellationInputSpecRPT,
                                               _FSInputSpecRPT):
     mask_nii = File(exists=True,
-                  usedefault=False,
-                  resolve=True,
-                  desc='Mask file to use on background nifti',
-                  mandatory=False)
+                    usedefault=False,
+                    resolve=True,
+                    desc='Mask file to use on background nifti',
+                    mandatory=False)
     pass
 
 
@@ -373,7 +372,8 @@ class IFreesurferVolParcellationRPT(ParcellationRC):
 
         # Re-normalize the ROI values by rank
         # Then extract colors from full colortable using rank ordering
-        unique_v, u_id = np.unique(d_parcellation.flatten(), return_inverse=True)
+        unique_v, u_id = np.unique(d_parcellation.flatten(),
+                                   return_inverse=True)
         colormap = _parse_freesurfer_LUT(self.inputs.colortable)
 
         # Remap parcellation to rank ordering
@@ -541,12 +541,28 @@ class _ISurfMapInputSpecRPT(nrc._SVGReportCapableInputSpec):
                              desc="Colormap to use to plot mapping",
                              mandatory=False)
 
-    views = traits.List(["lateral", "medial"],
-                        usedefault=True,
-                        desc="Views to display",
-                        inner_traits=traits.Enum(
-                            values=["lateral", "medial", "dorsal", "ventral"]))
-    darkness = traits.BaseInt(
+    views = traits.List([{
+            "view": "lateral",
+            "hemi": "left"
+        }, {
+            "view": "medial",
+            "hemi": "left"
+        }, {
+            "view": "lateral",
+            "hemi": "right"
+        }, {
+            "view": "medial",
+            "hemi": "right"
+        }],
+        usedefault=True,
+        desc="List of dictionaries describing views "
+        " to display per map",
+        inner_traits=traits.Dict(
+            key_trait=traits.Enum(values=["view", "hemi"]),
+            value_trait=traits.Enum(
+                values=["lateral", "medial", "dorsal", "ventral"])))
+
+    darkness = traits.Float(
         0.3,
         usedefault=True,
         desc="Multiplicative factor of bg_img onto foreground map",
@@ -649,9 +665,9 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
             bg_hemi = Hemispheres(left=None, right=None)
 
         # Construct figure
-        w, h = plt.figaspect(num_maps / (num_views * 2))
+        w, h = plt.figaspect(num_maps / (num_views))
         fig, axs = plt.subplots(num_maps,
-                                num_views * 2,
+                                num_views,
                                 subplot_kw={'projection': '3d'},
                                 figsize=(w, h))
         fig.set_facecolor("black")
@@ -659,23 +675,11 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
         for i, a in enumerate(axs.flat):
             a.set_facecolor("black")
 
-            # Get row (map)
-            i_map = i // (num_views * 2)
+            view = self._views[i]["view"]
+            hemi = self._views[i]["hemi"]
 
-            # Get column
-            i_view = (i // (i_map + 1)) % num_views
-            view = self._views[i_view]
-
-            # Get hemisphere
-            hemi = i // 2
-            if hemi == 0:
-                display_map = map_hemi.left
-                display_bg = bg_hemi.left
-                hemi = "left"
-            else:
-                display_map = map_hemi.right
-                display_bg = bg_hemi.right
-                hemi = "right"
+            display_map = getattr(map_hemi, hemi)
+            display_bg = getattr(bg_hemi, hemi)
 
             # Plot
             v, t, m = display_map
@@ -751,7 +755,10 @@ def _parse_freesurfer_LUT(colortable: str) -> dict:
             roi, _, r, g, b, _ = [
                 entry for entry in line.strip("\n").split(" ") if entry
             ]
-            color_mapping[int(roi)] = [int(r)/255,int(g)/255,int(b)/255]
+            color_mapping[int(roi)] = [
+                int(r) / 255, int(g) / 255,
+                int(b) / 255
+            ]
 
     return color_mapping
 
@@ -784,4 +791,5 @@ def _run_imports() -> None:
     register_interface(IFSCoregRPT, 'freesurfer_coreg')
     register_interface(ISurfVolRPT, 'surface_coreg')
     register_interface(ISurfMapRPT, 'surface')
-    register_interface(IFreesurferVolParcellationRPT, 'freesurfer_parcellation')
+    register_interface(IFreesurferVolParcellationRPT,
+                       'freesurfer_parcellation')

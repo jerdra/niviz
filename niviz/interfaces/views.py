@@ -541,17 +541,16 @@ class _ISurfMapInputSpecRPT(nrc._SVGReportCapableInputSpec):
                              desc="Colormap to use to plot mapping",
                              mandatory=False)
 
-    views = traits.List(
-        [{
+    views = traits.List([{
             "view": "lateral",
             "hemi": "left"
-        }], [{
+        }, {
             "view": "medial",
             "hemi": "left"
-        }], [{
+        }, {
             "view": "lateral",
             "hemi": "right"
-        }], [{
+        }, {
             "view": "medial",
             "hemi": "right"
         }],
@@ -563,7 +562,7 @@ class _ISurfMapInputSpecRPT(nrc._SVGReportCapableInputSpec):
             value_trait=traits.Enum(
                 values=["lateral", "medial", "dorsal", "ventral"])))
 
-    darkness = traits.BaseInt(
+    darkness = traits.Float(
         0.3,
         usedefault=True,
         desc="Multiplicative factor of bg_img onto foreground map",

@@ -654,7 +654,7 @@ class ISurfMapRPT(reporting.ReportCapableInterface):
             # Use vertices and triangles from Mesh
             lv, lt = niviz.surface.gifti_get_mesh(l_surf)
             rv, rt = niviz.surface.gifti_get_mesh(r_surf)
-            map_hemi = Hemispheres(left=(lv, lt, None), right=(lv, lt, None))
+            map_hemi = Hemispheres(left=(lv, lt, None), right=(rv, rt, None))
 
         if self._bg_map:
             bg_map = nib.load(self._bg_map)

@@ -179,16 +179,16 @@ def test_end_to_end_filespec_generation(datadir):
     expected_names = ["test"] * 3
     expected_interface_args = [
             {
-                "pathfield": "sub-A_ses-01_task-aa_leaf",
-                "spreadfield": "sub-A_spread"
+                "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-aa_leaf",
+                "spreadfield": f"{basepath}/sub-A/sub-A_spread"
             },
             {
-                "pathfield": "sub-A_ses-01_task-bb_leaf",
-                "spreadfield": "sub-A_spread"
+                "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-bb_leaf",
+                "spreadfield": f"{basepath}/sub-A/sub-A_spread"
             },
             {
-                "pathfield": "sub-B_ses-01_task-bb_leaf",
-                "spreadfield": "sub-B_spread"
+                "pathfield": f"{basepath}/sub-B/ses-01/sub-B_ses-01_task-aa_leaf",
+                "spreadfield": f"{basepath}/sub-B/sub-B_spread"
             }
     ]
     expected_methods = ["testmethod"] * 3

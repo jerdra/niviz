@@ -119,13 +119,92 @@ def test_bids_entities_fails_when_no_entities_are_found():
     with pytest.raises(TypeError):
         file_spec._extract_bids_entities(bad_path)
 
-def test_matching_algorithm_correctly_groups_data():
+def test_matching_algorithm_correctly_spreads_entities():
     '''
     Test whether less specific BIDS entities are spread to more
     specific BIDS entities with the matching algorithm
-
-    In addition the most specified entities should have their
-    BIDS entities matched exactly
     '''
-    pass
-    
+
+    input_mapping = (
+            ( {"sub": "A", "ses": "B", "task":"rest"}, "a" ),
+            ( {"sub": "A", "ses": "B", "task":"faces"}, "b" ),
+            ( {"sub": "A", "ses": "B", "task":None}, "c")
+    )
+    bids_hierarchy = ["sub", "ses", "task"]
+
+    expected_groups = {
+            (("sub", "A"), ("ses", "B"), ("task", "rest")): ["a", "c"],
+            (("sub", "A"), ("ses", "B"), ("task", "faces")): ["b", "c"]
+    }
+
+    file_spec = niviz.config.FileSpec({})
+    file_spec.bids_hierarchy = bids_hierarchy
+    res = file_spec._group_by_hierarchy(input_mapping, bids_hierarchy)
+
+    # Now check that each group is matched
+    for k, v in expected_groups.items():
+        assert res[k] = v
+
+
+def test_gen_args_makes_correct_output_when_cropped_hierarchy():
+    '''
+    Ensure that when an entity is not specified to be matched on in
+    the hierarchy that we don't use it as a matching criteria
+    and instead are grouped
+    '''
+    input_mapping = (
+            ( {"sub": "A", "ses": "B", "task":"rest"}, "a" ),
+            ( {"sub": "A", "ses": "B", "task":"faces"}, "b" ),
+            ( {"sub": "A", "ses": "B", "task":None}, "c")
+    )
+    available_entities = input_mapping = ["sub", "ses", "task"]
+    bids_hierarchy = ["sub", "ses"]
+
+    expected_groups = {
+            (("sub", "A"), ("ses", "B")): ["a", "b", "c"],
+    }
+
+    file_spec = niviz.config.FileSpec({})
+    file_spec.bids_hierarchy = bids_hierarchy
+    res = file_spec._group_by_hierarchy(input_mapping, bids_hierarchy)
+
+    # Now check that each group is matched
+    for k, v in expected_groups.items():
+        assert res[k] = v
+
+def test_end_to_end_filespec_generation(datadir):
+    filespec = datadir.join("sample-data-spec.yml")
+    basepath = datadir.join("sample-data")
+
+    expected_names = ["test"] * 3
+    expected_interface_args = [
+            {
+                "pathfield": "sub-A_ses-01_task-aa_leaf",
+                "spreadfield": "sub-A_spread"
+            },
+            {
+                "pathfield": "sub-A_ses-01_task-bb_leaf",
+                "spreadfield": "sub-A_spread"
+            },
+            {
+                "pathfield": "sub-B_ses-01_task-bb_leaf",
+                "spreadfield": "sub-B_spread"
+            }
+    ]
+    expected_methods = ["testmethod"] * 3
+    expected_out_spec = [
+            "sub-A_task-aa_desc-SOMEVAR.png",
+            "sub-A_task-bb_desc-SOMEVAR.png",
+            "sub-B_task-aa_desc-SOMEVAR.png",
+    ]
+
+    res = sorted(niviz.config.fetch_data(filespec, basepath),
+            key=lambda x: x._out_spec)
+    expected_zip = zip(expected_names, expected_interface_args,
+            expected_methods, expected_out_spec)
+
+    for i, name, arg, method, outspec in expected_zip:
+        assert res[i].name == name
+        assert res[i].interface_args == arg
+        assert res[i].method = method
+        assert res[i]._out_spec = outspec

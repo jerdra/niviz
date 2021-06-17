@@ -3,6 +3,11 @@ from __future__ import annotations
 import os
 import argparse
 import yaml
+from multiprocessing import Pool
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 
 def _get_package_name(config):
@@ -11,8 +16,12 @@ def _get_package_name(config):
     '''
 
     with open(config, 'r') as f:
-        package_name = yaml.load(f)['package']
+        package_name = yaml.load(f, Loader=Loader)['package']
     return package_name
+
+
+def _mksvg(interface):
+    interface.run()
 
 
 def svg_util(args):
@@ -26,7 +35,20 @@ def svg_util(args):
     arg_specs = niviz.config.fetch_data(args.spec_file, args.base_path)
     out_path = os.path.join(args.out_path, _get_package_name(args.spec_file))
 
-    [niviz.node_factory.get_interface(a, out_path).run() for a in arg_specs]
+    if not args.rewrite:
+        arg_specs = [
+            a for a in arg_specs
+            if not os.path.exists(os.path.join(out_path, a._out_spec))
+        ]
+
+    interfaces = [
+        n for a in arg_specs if
+        (n := niviz.node_factory.get_interface(a, out_path))
+        is not None]
+
+    with Pool(processes=args.nthreads) as pool:
+        pool.map(_mksvg, interfaces)
+
     return
 
 
@@ -80,6 +102,13 @@ def cli():
     parser_svg.add_argument('out_path',
                             type=str,
                             help='Base output path to create SVGs')
+    parser_svg.add_argument('--nthreads',
+                            type=int,
+                            nargs="?",
+                            const=1,
+                            help="Number of threads to parallelize across")
+    parser_svg.add_argument("--rewrite",
+                            help="Overwrite existing SVG files")
     parser_svg.set_defaults(func=svg_util)
 
     parser_report = sub_parsers.add_parser('report',

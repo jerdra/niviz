@@ -18,10 +18,10 @@ from dataclasses import dataclass, InitVar
 from copy import deepcopy
 
 import logging
-import logging.config
 
-logging.config.fileConfig("logging.conf")
-logger = logging.getLogger("nodeFactory")
+logger = logging.getLogger(__name__)
+if (logger.hasHandlers()):
+    logger.handlers.clear()
 
 
 @dataclass
@@ -107,10 +107,10 @@ class RPTFactory(object):
         self._interfaces = {}
 
     def get_interface(
-            self,
-            spec: ArgInputSpec,
-            out_path: Union[str, Path],
-            make_dirs: Optional[bool] = False
+        self,
+        spec: ArgInputSpec,
+        out_path: Union[str, Path],
+        make_dirs: Optional[bool] = False
     ) -> reporting.ReportCapableInterface:
         '''
         Retrieve and configure interface from registered list
@@ -136,9 +136,17 @@ class RPTFactory(object):
 
         # Create and configure node args
         interface_args = spec.make_interface_args(out_path, make_dirs)
-        logger.debug(
-            f"Constructing {spec.name} using {interface_class}")
+        logger.debug(f"Constructing {spec.name} using {interface_class}")
         logger.debug(f"Args:\n {interface_args}")
+        interface = interface_class(generate_report=True, **interface_args)
+        try:
+            interface._check_mandatory_inputs()
+        except ValueError:
+            logger.error("Incomplete specification!")
+            formatted_args = [f"{k}:\t{v}" for k, v in interface_args.items()]
+            logger.error("\n" + "\n".join(formatted_args))
+            return
+
         return interface_class(generate_report=True, **interface_args)
 
     def register_interface(self,

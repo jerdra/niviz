@@ -11,7 +11,6 @@ import os
 import copy
 
 import logging
-import logging.config
 import collections.abc
 from string import Template
 from pathlib import Path
@@ -28,10 +27,10 @@ from glob import glob
 
 from .node_factory import ArgInputSpec
 
-logging.config.fileConfig("logging.conf")
-
 # Initialize module logger
 logger = logging.getLogger("config")
+if (logger.hasHandlers()):
+    logger.handlers.clear()
 
 
 class ValidationError(ValueError):
@@ -302,9 +301,9 @@ class FileSpec(object):
                 try:
                     bids_val = re.search(v['value'], path)[0]
                 except TypeError:
-                    logger.info(
+                    logger.warning(
                         f"Cannot extract {k} from {path} using {v['regex']}!")
-                    bids_val = None
+                    raise
             else:
                 bids_val = v['value']
 
@@ -404,11 +403,18 @@ class FileSpec(object):
                         "value": p,
                     })
 
-                    bids_entities = self._extract_bids_entities(p)
+                    try:
+                        bids_entities = self._extract_bids_entities(p)
+                    except TypeError:
+                        logging.warning(f"{p} does not contain BIDS entities!")
+                        logging.warning("Skipping...")
+                        continue
+
                     bids_results.append((bids_entities, cur_mapping))
             else:
-                # Return null BIDS mapping
-                bids_entities = self._extract_bids_entities(v)
+                # Return null bids mapping since non-globbable paths
+                # likely don't encode BIDS keys
+                bids_entities = {k: None for k in self.bids_map.keys()}
                 bids_results.append((bids_entities, {"field": f, "value": v}))
 
         matched = self._group_by_hierarchy(bids_results, self.bids_map.keys())

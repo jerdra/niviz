@@ -158,6 +158,29 @@ class SpecConfig(object):
 
         return [self._get_file_arg(f, base_path) for f in self.file_specs]
 
+    def _update_spec_with_defaults(self, spec):
+        '''
+        Update a single file specification with the global defaults if
+        fields have not yet been defined
+
+        Arguments:
+            spec: file specification key value pairs
+
+        Returns:
+            Dictionary with defaults applied to spec
+        '''
+        _spec = copy.deepcopy(spec)
+        _spec['bids_map'] = _nested_update(spec['bids_map'],
+                                           self.defaults.get('bids_map', {}))
+
+        _spec['bids_hierarchy'] = spec.get(
+                'bids_hierarchy',
+                self.defaults.get('bids_hierarchy', [])
+                )
+
+        _spec['args'] = self._apply_envs(spec['args'])
+        return _spec
+
     def _get_file_arg(self, spec: dict, base_path: str) -> list[ArgInputSpec]:
         '''
         Construct argument for a single FileSpec
@@ -172,19 +195,7 @@ class SpecConfig(object):
             nipype.interfaces.mixins.ReportCapableInterface objects
         '''
 
-        _spec = copy.deepcopy(spec)
-        _spec['bids_map'] = _nested_update(spec['bids_map'],
-                                           self.defaults.get('bids_map', {}))
-
-        if not spec.get('bids_hierarchy'):
-            _spec['bids_hierarchy'] = self.defaults.get('bids_hierarchy')
-        else:
-            _spec['bids_hierachy'] = spec.get('bids_hierarchy')
-
-        if 'bids_hierarchy' not in _spec:
-            self['bids_hierarchy'] = self.defaults.get('bids_hierarchy', [])
-
-        _spec['args'] = self._apply_envs(spec['args'])
+        _spec = self._update_spec_with_defaults(spec)
         return FileSpec(_spec).gen_args(base_path)
 
     def _apply_envs(self, args: list[dict]) -> list[dict]:

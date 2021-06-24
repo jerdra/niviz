@@ -8,12 +8,12 @@ global:
       value: "(?<=ses-)[A-Za-z0-9]+"
       regex: true
     task:
-      value: "(?=<task-)[A-Za-z0-9]+"
+      value: "(?<=task-)[A-Za-z0-9]+"
       regex: true
   env:
     SOMEVAR: "SOMEVAR"
 
-filespec:
+filespecs:
   - name: test
     method: testmethod
     args:
@@ -25,5 +25,5 @@ filespec:
         path: true
     bids_map:
       desc:
-        value: "$SOMEVAR"
-        out_path: "${sub}_${task}_${desc}.png"
+        value: "SOMEVAR"
+    out_path: "${sub}_${task}_${desc}.png"

@@ -1,6 +1,6 @@
 import niviz.config
 from distutils import dir_util
-from pytest import fixture
+import pytest
 import os
 import yaml
 try:
@@ -8,8 +8,9 @@ try:
 except ImportError:
     from yaml import Loader
 
+
 ## Fixture
-@fixture
+@pytest.fixture
 def datadir(tmpdir, request):
     '''
     Pull fixture from directory with the same file name as module
@@ -17,10 +18,10 @@ def datadir(tmpdir, request):
     '''
 
     filename = request.module.__file__
-    test_dir, _ = os.path.splittext(filename)
+    test_dir, _ = os.path.splitext(filename)
 
     if os.path.isdir(test_dir):
-        dir_util.copy_tree(test_dir, bytes(trmpdir))
+        dir_util.copy_tree(test_dir, str(tmpdir))
 
     return tmpdir
 
@@ -32,9 +33,10 @@ def test_config_fails_when_environment_variable_missing(datadir):
     will be raised
     '''
 
-    spec = yaml.load(datadir.join("only-environment-fixture.yml"))
+    spec = datadir.join("only-environment-fixture.yml")
     with pytest.raises(niviz.config.ValidationError):
         niviz.config.SpecConfig(spec, '')
+
 
 def test_config_substitutes_env_when_variable_available(datadir):
     '''
@@ -44,13 +46,13 @@ def test_config_substitutes_env_when_variable_available(datadir):
 
     # Set environment variable
     os.environ["NOTDEFINED"] = "DEFINED"
-    spec = yaml.load(datadir.join("only-environment-fixture.yml"))
-    config = niviz.config.SpecConfig(default, '')
+    spec = datadir.join("only-environment-fixture.yml")
+    config = niviz.config.SpecConfig(spec, '')
     expected_defaults = {"NOTDEFINED": "DEFINED"}
     assert config.defaults["env"] == expected_defaults
 
-def test_update_specs_with_default_updates_correctly(datadir):
 
+def test_update_specs_with_default_updates_correctly(datadir):
     '''
     Test whether an image generation specification correctly
     inherits settings specified as globals
@@ -61,22 +63,29 @@ def test_update_specs_with_default_updates_correctly(datadir):
     config = niviz.config.SpecConfig(input_spec, '')
 
     # Load fixture directly
-    raw_spec = yaml.load(input_spec, Loader=Loader)['filespec'][0]
-
+    with open(input_spec, 'r') as f:
+        raw_spec = yaml.load(f, Loader=Loader)['filespecs'][0]
 
     expected_bidsmap = {
-            "bids_map": {
-                "sub": { "value": "subject_value" },
-                "desc": { "value": "SOMEVAR" }
-            }
+        "sub": {
+            "value": "subject_value"
+        },
+        "desc": {
+            "value": "desc"
+        }
     }
 
     expected_bids_hierarchy = ["sub", "ses"]
 
-    expected_args = [
-            {"field": "bg_nii", "value": "test", "path": True},
-            {"field": "fg_nii", "value": "SOMEVAR", "path": True}
-    ]
+    expected_args = [{
+        "field": "bg_nii",
+        "value": "test",
+        "path": True
+    }, {
+        "field": "fg_nii",
+        "value": "SOMEVAR",
+        "path": True
+    }]
 
     res = config._update_spec_with_defaults(raw_spec)
 
@@ -84,40 +93,55 @@ def test_update_specs_with_default_updates_correctly(datadir):
     assert res["bids_hierarchy"] == expected_bids_hierarchy
     assert res["args"] == expected_args
 
+
 def test_bids_entities_are_correctly_extracted_from_path():
     '''
     Test whether given a bids_map and path to parse that
     BIDS entities are correctly pulled
     '''
-    spec = { "bids_map": {
-            "sub": { "value": "(?<=sub-)[A-Za-z0-9]+", "regex": True },
-            "desc": { "value": "constantvalue"},
-            "acq": { "value": "(?<=acq-)[A-Za-z0-9]+", "regex": True }
-        }}
+    spec = {
+        "bids_map": {
+            "sub": {
+                "value": "(?<=sub-)[A-Za-z0-9]+",
+                "regex": True
+            },
+            "acq": {
+                "value": "(?<=acq-)[A-Za-z0-9]+",
+                "regex": True
+            }
+        }
+    }
 
     file_spec = niviz.config.FileSpec(spec)
-    expected_entities = {"sub": "ABCD", "desc": "constantvalue",
-                        "acq": None}
-    path = "/this/is/a/fake/path/sub-ABCD_desc-constantvalue_fake-BAD"
+    expected_entities = {"sub": "ABCD", "acq": None}
+    path = "/this/is/a/fake/path/sub-ABCD_fake-ignore"
 
     res = file_spec._extract_bids_entities(path)
-    assert expected_entities = res
+    assert expected_entities == res
 
 
 def test_bids_entities_fails_when_no_entities_are_found():
     '''
     If entities are expected but none are found then should fail
     '''
-    spec = { "bids_map": {
-            "sub": { "value": "(?<=sub-)[A-Za-z0-9]+", "regex": True },
-            "desc": { "value": "constantvalue"},
-            "acq": { "value": "(?<=acq-)[A-Za-z0-9]+", "regex": True }
-        }}
+    spec = {
+        "bids_map": {
+            "sub": {
+                "value": "(?<=sub-)[A-Za-z0-9]+",
+                "regex": True
+            },
+            "acq": {
+                "value": "(?<=acq-)[A-Za-z0-9]+",
+                "regex": True
+            }
+        }
+    }
 
     file_spec = niviz.config.FileSpec(spec)
     bad_path = "thisisbad"
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         file_spec._extract_bids_entities(bad_path)
+
 
 def test_matching_algorithm_correctly_spreads_entities():
     '''
@@ -125,25 +149,32 @@ def test_matching_algorithm_correctly_spreads_entities():
     specific BIDS entities with the matching algorithm
     '''
 
-    input_mapping = (
-            ( {"sub": "A", "ses": "B", "task":"rest"}, "a" ),
-            ( {"sub": "A", "ses": "B", "task":"faces"}, "b" ),
-            ( {"sub": "A", "ses": "B", "task":None}, "c")
-    )
+    input_mapping = (({
+        "sub": "A",
+        "ses": "B",
+        "task": "rest"
+    }, "a"), ({
+        "sub": "A",
+        "ses": "B",
+        "task": "faces"
+    }, "b"), ({
+        "sub": "A",
+        "ses": "B",
+        "task": None
+    }, "c"))
     bids_hierarchy = ["sub", "ses", "task"]
 
     expected_groups = {
-            (("sub", "A"), ("ses", "B"), ("task", "rest")): ["a", "c"],
-            (("sub", "A"), ("ses", "B"), ("task", "faces")): ["b", "c"]
+        (("sub", "A"), ("ses", "B"), ("task", "rest")): ["a", "c"],
+        (("sub", "A"), ("ses", "B"), ("task", "faces")): ["b", "c"]
     }
 
-    file_spec = niviz.config.FileSpec({})
-    file_spec.bids_hierarchy = bids_hierarchy
+    file_spec = niviz.config.FileSpec({"bids_hierarchy": bids_hierarchy})
     res = file_spec._group_by_hierarchy(input_mapping, bids_hierarchy)
 
     # Now check that each group is matched
     for k, v in expected_groups.items():
-        assert res[k] = v
+        assert res[k] == v
 
 
 def test_gen_args_makes_correct_output_when_cropped_hierarchy():
@@ -152,59 +183,64 @@ def test_gen_args_makes_correct_output_when_cropped_hierarchy():
     the hierarchy that we don't use it as a matching criteria
     and instead are grouped
     '''
-    input_mapping = (
-            ( {"sub": "A", "ses": "B", "task":"rest"}, "a" ),
-            ( {"sub": "A", "ses": "B", "task":"faces"}, "b" ),
-            ( {"sub": "A", "ses": "B", "task":None}, "c")
-    )
-    available_entities = input_mapping = ["sub", "ses", "task"]
+    input_mapping = (({
+        "sub": "A",
+        "ses": "B",
+        "task": "rest"
+    }, "a"), ({
+        "sub": "A",
+        "ses": "B",
+        "task": "faces"
+    }, "b"), ({
+        "sub": "A",
+        "ses": "B",
+        "task": None
+    }, "c"))
+    available_entities = ["sub", "ses", "task"]
     bids_hierarchy = ["sub", "ses"]
 
     expected_groups = {
-            (("sub", "A"), ("ses", "B")): ["a", "b", "c"],
+        (("sub", "A"), ("ses", "B")): ["a", "b", "c"],
     }
 
-    file_spec = niviz.config.FileSpec({})
-    file_spec.bids_hierarchy = bids_hierarchy
+    file_spec = niviz.config.FileSpec({"bids_hierarchy": bids_hierarchy})
     res = file_spec._group_by_hierarchy(input_mapping, bids_hierarchy)
 
     # Now check that each group is matched
     for k, v in expected_groups.items():
-        assert res[k] = v
+        assert res[k] == v
+
 
 def test_end_to_end_filespec_generation(datadir):
     filespec = datadir.join("sample-data-spec.yml")
     basepath = datadir.join("sample-data")
 
     expected_names = ["test"] * 3
-    expected_interface_args = [
-            {
-                "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-aa_leaf",
-                "spreadfield": f"{basepath}/sub-A/sub-A_spread"
-            },
-            {
-                "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-bb_leaf",
-                "spreadfield": f"{basepath}/sub-A/sub-A_spread"
-            },
-            {
-                "pathfield": f"{basepath}/sub-B/ses-01/sub-B_ses-01_task-aa_leaf",
-                "spreadfield": f"{basepath}/sub-B/sub-B_spread"
-            }
-    ]
+    expected_interface_args = [{
+        "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-aa_leaf",
+        "spreadfield": f"{basepath}/sub-A/sub-A_spread"
+    }, {
+        "pathfield": f"{basepath}/sub-A/ses-01/sub-A_ses-01_task-bb_leaf",
+        "spreadfield": f"{basepath}/sub-A/sub-A_spread"
+    }, {
+        "pathfield": f"{basepath}/sub-B/ses-01/sub-B_ses-01_task-aa_leaf",
+        "spreadfield": f"{basepath}/sub-B/sub-B_spread"
+    }]
     expected_methods = ["testmethod"] * 3
     expected_out_spec = [
-            "sub-A_task-aa_desc-SOMEVAR.png",
-            "sub-A_task-bb_desc-SOMEVAR.png",
-            "sub-B_task-aa_desc-SOMEVAR.png",
+        "sub-A_task-aa_desc-SOMEVAR.png",
+        "sub-A_task-bb_desc-SOMEVAR.png",
+        "sub-B_task-aa_desc-SOMEVAR.png",
     ]
 
     res = sorted(niviz.config.fetch_data(filespec, basepath),
-            key=lambda x: x._out_spec)
+                 key=lambda x: x._out_spec)
     expected_zip = zip(expected_names, expected_interface_args,
-            expected_methods, expected_out_spec)
+                       expected_methods, expected_out_spec)
 
-    for i, name, arg, method, outspec in expected_zip:
+    for i, namo in enumerate(expected_zip):
+        name, arg, method, outspec = namo
         assert res[i].name == name
         assert res[i].interface_args == arg
-        assert res[i].method = method
-        assert res[i]._out_spec = outspec
+        assert res[i].method == method
+        assert res[i]._out_spec.name == outspec

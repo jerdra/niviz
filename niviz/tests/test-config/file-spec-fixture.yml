@@ -5,7 +5,7 @@ global:
       value: "subject_value"
   env:
     SOMEVAR: "SOMEVAR"
-filespec:
+filespecs:
   - name: test
     method: surface
     args:
@@ -17,5 +17,5 @@ filespec:
         path: true
     bids_map:
       desc:
-        value: "$SOMEVAR"
-        out_path: "${sub}_${desc}.png"
+        value: "desc"
+    out_path: "${sub}_${desc}.png"

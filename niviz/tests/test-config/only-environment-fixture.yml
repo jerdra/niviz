@@ -1,7 +1,8 @@
 global:
   env:
     NOTDEFINED: "$NOTDEFINED"
-filespec:
+
+filespecs:
   - name: test
     method: surface
     args:

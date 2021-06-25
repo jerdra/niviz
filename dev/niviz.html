@@ -196,7 +196,7 @@ for nipype ReportCapableInterfaces</p>
 <p>Class to implement QcSpec</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niviz.config.FileSpec._extract_bids_entities">
-<span class="sig-name descname"><span class="pre">_extract_bids_entities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec._extract_bids_entities" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_extract_bids_entities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.FileSpec._extract_bids_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract BIDS entities from path</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -207,7 +207,8 @@ for nipype ReportCapableInterfaces</p>
     path</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>a tuple of BIDS (field,value) pairs</p>
+<dd class="field-odd"><p>a tuple of BIDS (field,value) pairs extracted from path
+a tuple of BIDS (field,value) pairs that were statically specified</p>
 </dd>
 </dl>
 </dd></dl>
@@ -231,6 +232,16 @@ for nipype ReportCapableInterfaces</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="niviz.config.FileSpec.bids_map">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">bids_map</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.FileSpec.bids_map" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.dynamic_entities">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dynamic_entities</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.FileSpec.dynamic_entities" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -289,6 +300,16 @@ Pulled from filespec[i].args in configuration spec</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="niviz.config.FileSpec.static_entities">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">static_entities</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#niviz.config.FileSpec.static_entities" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -365,6 +386,21 @@ nipype.interfaces.mixins.ReportCapableInterface objects</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niviz.config.SpecConfig._update_spec_with_defaults">
+<span class="sig-name descname"><span class="pre">_update_spec_with_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niviz.config.SpecConfig._update_spec_with_defaults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a single file specification with the global defaults if
+fields have not yet been defined</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spec</strong> – file specification key value pairs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with defaults applied to spec</p>
 </dd>
 </dl>
 </dd></dl>

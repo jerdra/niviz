@@ -1,0 +1,21 @@
+global:
+  bids_hierarchy: ['sub', 'ses']
+  bids_map:
+    sub:
+      value: "subject_value"
+  env:
+    SOMEVAR: "SOMEVAR"
+filespecs:
+  - name: test
+    method: surface
+    args:
+      - field: bg_nii
+        value: "test"
+        path: true
+      - field: fg_nii
+        value: "$SOMEVAR"
+        path: true
+    bids_map:
+      desc:
+        value: "desc"
+    out_path: "${sub}_${desc}.png"

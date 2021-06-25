@@ -1,0 +1,29 @@
+global:
+  bids_hierarchy: ['sub', 'ses', 'task']
+  bids_map:
+    sub:
+      value: "(?<=sub-)[A-Za-z0-9]+"
+      regex: true
+    ses:
+      value: "(?<=ses-)[A-Za-z0-9]+"
+      regex: true
+    task:
+      value: "(?<=task-)[A-Za-z0-9]+"
+      regex: true
+  env:
+    SOMEVAR: "SOMEVAR"
+
+filespecs:
+  - name: test
+    method: testmethod
+    args:
+      - field: pathfield
+        value: "./*/*/*_leaf"
+        path: true
+      - field: spreadfield
+        value: "./*/*_spread"
+        path: true
+    bids_map:
+      desc:
+        value: "SOMEVAR"
+    out_path: "${sub}_${task}_${desc}.png"

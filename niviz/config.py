@@ -5,7 +5,7 @@ for nipype ReportCapableInterfaces
 """
 
 from __future__ import annotations
-from typing import Union
+from typing import Union, Optional
 
 import os
 import copy
@@ -157,6 +157,27 @@ class SpecConfig(object):
 
         return [self._get_file_arg(f, base_path) for f in self.file_specs]
 
+    def _update_spec_with_defaults(self, spec):
+        '''
+        Update a single file specification with the global defaults if
+        fields have not yet been defined
+
+        Arguments:
+            spec: file specification key value pairs
+
+        Returns:
+            Dictionary with defaults applied to spec
+        '''
+        _spec = copy.deepcopy(spec)
+        _spec['bids_map'] = _nested_update(spec['bids_map'],
+                                           self.defaults.get('bids_map', {}))
+
+        _spec['bids_hierarchy'] = spec.get(
+            'bids_hierarchy', self.defaults.get('bids_hierarchy', []))
+
+        _spec['args'] = self._apply_envs(spec['args'])
+        return _spec
+
     def _get_file_arg(self, spec: dict, base_path: str) -> list[ArgInputSpec]:
         '''
         Construct argument for a single FileSpec
@@ -171,19 +192,7 @@ class SpecConfig(object):
             nipype.interfaces.mixins.ReportCapableInterface objects
         '''
 
-        _spec = copy.deepcopy(spec)
-        _spec['bids_map'] = _nested_update(spec['bids_map'],
-                                           self.defaults.get('bids_map', {}))
-
-        if not spec.get('bids_hierarchy'):
-            _spec['bids_hierarchy'] = self.defaults.get('bids_hierarchy')
-        else:
-            _spec['bids_hierachy'] = spec.get('bids_hierarchy')
-
-        if 'bids_hierarchy' not in _spec:
-            self['bids_hierarchy'] = self.defaults.get('bids_hierarchy', [])
-
-        _spec['args'] = self._apply_envs(spec['args'])
+        _spec = self._update_spec_with_defaults(spec)
         return FileSpec(_spec).gen_args(base_path)
 
     def _apply_envs(self, args: list[dict]) -> list[dict]:
@@ -226,7 +235,6 @@ class FileSpec(object):
     def __init__(self, spec: dict) -> None:
 
         self.spec = spec
-        self.bids_hierarchy = {}
 
     @property
     def name(self) -> str:
@@ -258,11 +266,30 @@ class FileSpec(object):
         return self.spec['bids_map']
 
     @property
+    def static_entities(self) -> dict:
+        static_entities = {
+            k: v['value']
+            for k, v in self.spec['bids_map'].items()
+            if not v.get('regex', False)
+        }
+        return static_entities
+
+    @property
+    def dynamic_entities(self) -> dict:
+        dyn_entities = {
+            k: v['value']
+            for k, v in self.spec['bids_map'].items() if v.get('regex')
+        }
+        return dyn_entities
+
+    @property
     def out_path(self) -> str:
         return self.spec['out_path']
 
     def _extract_bids_entities(
-            self, path: str) -> tuple[dict[str, Union[str, None]], ...]:
+            self,
+            path: Optional[str] = None
+    ) -> tuple[dict[str, Union[str, None]], ...]:
         '''
         Extract BIDS entities from path
 
@@ -274,29 +301,22 @@ class FileSpec(object):
                 path
 
         Returns:
-            a tuple of BIDS (field,value) pairs
+            a tuple of BIDS (field,value) pairs extracted from path
+            a tuple of BIDS (field,value) pairs that were statically specified
         '''
 
         res = {}
-        for k, v in self.bids_map.items():
+        for k, v in self.dynamic_entities.items():
+            try:
+                bids_val = re.search(v, path)[0]
+            except TypeError:
+                logger.warning(f"Cannot extract {k} from {path} using {v}!")
+                bids_val = None
+            finally:
+                res.update({k: bids_val})
 
-            if not isinstance(v, dict):
-                logger.error("Config dict configured incorrectly!")
-                logger.error(f"Key given is {v}")
-                raise ValidationError
-
-            bids_val = None
-            if v.get('regex', False):
-                try:
-                    bids_val = re.search(v['value'], path)[0]
-                except TypeError:
-                    logger.warning(
-                        f"Cannot extract {k} from {path} using {v['regex']}!")
-                    raise
-            else:
-                bids_val = v['value']
-
-            res.update({k: bids_val})
+        if all([v is None for v in {**res, **self.static_entities}.values()]):
+            raise ValueError(f"No BIDS entities specified for {path}!")
 
         return res
 
@@ -315,7 +335,7 @@ class FileSpec(object):
                     entity_found[e[entity]].append((e, f))
             return entity_found, no_entity
 
-        def resolve_group(grouped_entities):
+        def resolve_group(grouped_entities, match_entities):
             '''
             Resolve grouped entities from
 
@@ -323,13 +343,19 @@ class FileSpec(object):
 
             into
 
-            {tuple(entity_spec): [file_spec,...], ...}
+            {tuple(match_entities): [file_spec,...], ...}
+
+            Entities not in match_entities are discarded
             '''
 
             res = defaultdict(list)
             for g in grouped_entities.values():
                 for e, s in g:
-                    res[tuple(e.items())].append(s)
+                    entities = {
+                        k: v
+                        for k, v in e.items() if k in match_entities
+                    }
+                    res[tuple(entities.items())].append(s)
             return res
 
         def apply_spread(res, spread):
@@ -347,11 +373,15 @@ class FileSpec(object):
         # TODO: Update to use indices to avoid copying
         def traverse(h, entity_specs):
 
+            # Bind to local function scope hierarchy for read-only
+            nonlocal hierarchy
+
             entity = h.pop(0)
             has_entity, to_spread = group_by_entity(entity_specs, entity)
 
             if not h:
-                return apply_spread(resolve_group(has_entity), to_spread)
+                return apply_spread(resolve_group(has_entity, hierarchy),
+                                    to_spread)
 
             res = {}
             for es in has_entity.values():
@@ -364,8 +394,7 @@ class FileSpec(object):
         hierarchy = [
             h for h in self.spec['bids_hierarchy'] if h in available_entities
         ]
-
-        return traverse(hierarchy, entities_specs)
+        return traverse(copy.copy(hierarchy), entities_specs)
 
     def gen_args(self, base_path: str) -> list[ArgInputSpec]:
         '''
@@ -392,19 +421,11 @@ class FileSpec(object):
                         "value": p,
                     })
 
-                    try:
-                        bids_entities = self._extract_bids_entities(p)
-                    except TypeError:
-                        logging.warning(f"{p} does not contain BIDS entities!")
-                        logging.warning("Skipping...")
-                        continue
-
-                    bids_results.append((bids_entities, cur_mapping))
+                    entities = self._extract_bids_entities(p)
+                    bids_results.append((entities, cur_mapping))
             else:
-                # Return null bids mapping since non-globbable paths
-                # likely don't encode BIDS keys
-                bids_entities = {k: None for k in self.bids_map.keys()}
-                bids_results.append((bids_entities, {"field": f, "value": v}))
+                entities = self._extract_bids_entities()
+                bids_results.append((entities, {"field": f, "value": v}))
 
         matched = self._group_by_hierarchy(bids_results, self.bids_map.keys())
         arg_specs = []
@@ -413,7 +434,10 @@ class FileSpec(object):
             bids_argmap = {i["field"]: i["value"] for i in filespecs}
             arg_spec = ArgInputSpec(name=self.name,
                                     interface_args=bids_argmap,
-                                    bids_entities=bids_entities,
+                                    bids_entities=(
+                                        *bids_entities,
+                                        *tuple(self.static_entities.items())
+                                    ),
                                     out_spec=self.out_path,
                                     method=self.method)
 

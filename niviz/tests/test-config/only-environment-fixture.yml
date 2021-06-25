@@ -1,0 +1,16 @@
+global:
+  env:
+    NOTDEFINED: "$NOTDEFINED"
+
+filespecs:
+  - name: test
+    method: surface
+    args:
+      - field: bg_nii
+        value: "test"
+      - field: fg_nii
+        value: "test"
+    bids_map:
+      sub:
+        value: test
+    out_path: "${sub}.png"

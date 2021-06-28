@@ -9,7 +9,6 @@ except ImportError:
     from yaml import Loader
 
 
-## Fixture
 @pytest.fixture
 def datadir(tmpdir, request):
     '''
@@ -196,7 +195,6 @@ def test_gen_args_makes_correct_output_when_cropped_hierarchy():
         "ses": "B",
         "task": None
     }, "c"))
-    available_entities = ["sub", "ses", "task"]
     bids_hierarchy = ["sub", "ses"]
 
     expected_groups = {

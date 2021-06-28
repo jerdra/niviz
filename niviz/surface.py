@@ -82,7 +82,8 @@ def map_cifti_to_gifti(gifti, cifti):
                 gifti_struct = d.metadata['AnatomicalStructurePrimary']
             except KeyError:
                 raise ValueError(
-                    f"{gifti.get_filename()} is not a surface mesh file!")
+                    f"{gifti.get_filename()} is not a valid surface mesh file!"
+                )
 
     if gifti_struct is None:
         raise ValueError(
